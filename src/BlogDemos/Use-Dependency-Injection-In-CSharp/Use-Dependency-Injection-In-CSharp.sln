@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Use-Dependency-Injection-In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Use-Dependency-Injection-With-Factory-Pattern", "Use-Dependency-Injection-With-Factory-Pattern\Use-Dependency-Injection-With-Factory-Pattern.csproj", "{BB404D8C-61AF-4BB8-88C3-5194603BCF93}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Use-Dependency-Injection-With-Lifetime-Scope-Control", "Use-Dependency-Injection-With-Lifetime-Scope-Control\Use-Dependency-Injection-With-Lifetime-Scope-Control.csproj", "{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BB404D8C-61AF-4BB8-88C3-5194603BCF93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB404D8C-61AF-4BB8-88C3-5194603BCF93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB404D8C-61AF-4BB8-88C3-5194603BCF93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
