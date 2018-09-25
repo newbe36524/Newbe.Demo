@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Use-Dependency-Injection-In-Simple-Three-Layers", "Use-Dependency-Injection-In-Simple-Three-Layers\Use-Dependency-Injection-In-Simple-Three-Layers.csproj", "{BC724B4B-F691-4CC3-A550-738C7B04D409}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Use-Dependency-Injection-With-Factory-Pattern", "Use-Dependency-Injection-With-Factory-Pattern\Use-Dependency-Injection-With-Factory-Pattern.csproj", "{BB404D8C-61AF-4BB8-88C3-5194603BCF93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Use-Dependency-Injection-With-Lifetime-Scope-Control", "Use-Dependency-Injection-With-Lifetime-Scope-Control\Use-Dependency-Injection-With-Lifetime-Scope-Control.csproj", "{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC724B4B-F691-4CC3-A550-738C7B04D409}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC724B4B-F691-4CC3-A550-738C7B04D409}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC724B4B-F691-4CC3-A550-738C7B04D409}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC724B4B-F691-4CC3-A550-738C7B04D409}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB404D8C-61AF-4BB8-88C3-5194603BCF93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB404D8C-61AF-4BB8-88C3-5194603BCF93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB404D8C-61AF-4BB8-88C3-5194603BCF93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB404D8C-61AF-4BB8-88C3-5194603BCF93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F10BDA3-BD68-4D7A-8B01-1EF3E9AEB8CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C41C4DEC-DDE7-403A-BDE2-7A028CC8B709}
+	EndGlobalSection
+EndGlobal
