@@ -121,7 +121,14 @@ namespace Try_More_On_IEnumerable
                 Children = Enumerable.Empty<TreeNode>();
             }
 
+            /// <summary>
+            /// 当前节点的值
+            /// </summary>
             public int Value { get; set; }
+            
+            /// <summary>
+            /// 当前节点的子节点列表
+            /// </summary>
             public IEnumerable<TreeNode> Children { get; set; }
         }
 
