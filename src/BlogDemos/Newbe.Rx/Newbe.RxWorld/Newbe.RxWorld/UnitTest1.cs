@@ -21,31 +21,7 @@ namespace Newbe.RxWorld
         }
 
         [Fact]
-        public async Task Test1()
-        {
-            var httpClient = new HttpClient();
-            var source = new[]
-            {
-                1, 2, 3, 4, 5, 6, 7
-            };
-            var ob = source.ToObservable();
-            var task = ob
-                .Select(x => x * 2)
-                .Where(x => x > 10)
-                .ForEachAsync(async x =>
-                {
-                    var httpResponseMessage = await httpClient.SendAsync(new HttpRequestMessage
-                    {
-                        Method = HttpMethod.Get,
-                        RequestUri = new Uri($"https://www.baidu.com?q={x}")
-                    });
-                    _testOutputHelper.WriteLine(httpResponseMessage.StatusCode.ToString());
-                });
-            await task;
-        }
-
-        [Fact]
-        public void Test2()
+        public void Test1()
         {
             var observable = Observable.Generate(0, x => true, i => i + 1, i => i, i => TimeSpan.FromSeconds(0.5));
             using (observable.Subscribe(x => _testOutputHelper.WriteLine(x.ToString())))
