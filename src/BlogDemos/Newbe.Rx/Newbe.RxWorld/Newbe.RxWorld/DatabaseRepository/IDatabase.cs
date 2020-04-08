@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Newbe.RxWorld.DatabaseRepository
 {
     public interface IDatabase
     {
-        Task InsertOne();
-        Task InsertMany(int count);
+        Task<int> InsertOne(int item);
+        Task<int> InsertMany(IEnumerable<int> items);
     }
 }

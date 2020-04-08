@@ -37,7 +37,7 @@ namespace Newbe.RxWorld
             var repo = new NormalDatabaseRepository(_testOutputHelper, new Database());
             await RunTest(10001, repo);
         }
-        
+
         [Fact]
         public async Task Batch10001()
         {
@@ -48,8 +48,10 @@ namespace Newbe.RxWorld
         private async Task RunTest(int count, IDatabaseRepository repo)
         {
             var sw = Stopwatch.StartNew();
-            await Task.WhenAll(Enumerable.Range(0, count).Select(repo.InsertData));
+            var allCount = await Task.WhenAll(Enumerable.Range(0, count).Select(repo.InsertData));
             _testOutputHelper.WriteLine($"time : {sw.ElapsedMilliseconds}");
+            var currentCount = allCount.Max();
+            _testOutputHelper.WriteLine($"current total count : {currentCount}");
         }
     }
 }

@@ -17,9 +17,9 @@ namespace Newbe.RxWorld.DatabaseRepository
             _database = database;
         }
 
-        public Task InsertData(int item)
+        public Task<int> InsertData(int item)
         {
-            return _database.InsertOne();
+            return _database.InsertOne(item);
         }
     }
 }

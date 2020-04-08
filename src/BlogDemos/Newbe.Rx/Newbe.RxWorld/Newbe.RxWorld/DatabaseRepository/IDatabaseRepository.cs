@@ -4,6 +4,6 @@ namespace Newbe.RxWorld.DatabaseRepository
 {
     public interface IDatabaseRepository
     {
-        Task InsertData(int item);
+        Task<int> InsertData(int item);
     }
 }

@@ -23,12 +23,12 @@ namespace Newbe.RxWorld.DatabaseRepository
             _database = database;
             _subject = new Subject<BatchItem>();
             _subject.Buffer(TimeSpan.FromMilliseconds(10))
-                .Select(list => Observable.FromAsync(async () => await BatchInsertData(list)))
+                .Select(list => Observable.FromAsync(() => BatchInsertData(list)))
                 .Merge()
                 .Subscribe();
         }
 
-        public Task InsertData(int item)
+        public Task<int> InsertData(int item)
         {
             var taskCompletionSource = new TaskCompletionSource<int>();
             _subject.OnNext(new BatchItem
@@ -45,10 +45,10 @@ namespace Newbe.RxWorld.DatabaseRepository
             var count = batchItems.Length;
             try
             {
-                await _database.InsertMany(count);
+                var totalCount = await _database.InsertMany(batchItems.Select(x => x.Item));
                 foreach (var batchItem in batchItems)
                 {
-                    batchItem.TaskCompletionSource.SetResult(0);
+                    batchItem.TaskCompletionSource.SetResult(totalCount);
                 }
             }
             catch (Exception e)
@@ -56,7 +56,6 @@ namespace Newbe.RxWorld.DatabaseRepository
                 foreach (var batchItem in batchItems)
                 {
                     batchItem.TaskCompletionSource.SetException(e);
-                    Console.WriteLine(e);
                 }
 
                 throw;
