@@ -10,11 +10,11 @@ using Xunit.Abstractions;
 
 namespace Newbe.RxWorld
 {
-    public class DataBaseTest
+    public class TimeTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public DataBaseTest(
+        public TimeTest(
             ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
