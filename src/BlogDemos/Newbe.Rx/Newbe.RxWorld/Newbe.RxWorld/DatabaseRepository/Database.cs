@@ -1,43 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace Newbe.RxWorld.DatabaseRepository
 {
     public class Database : IDatabase
     {
-        private static readonly object Locker = new object();
-        private int _count = 0;
+        public Database()
+        {
+            CreateDatabase().Wait();
+        }
 
         public async Task<int> InsertOne(int item)
         {
-            await using var db = new SQLiteConnection();
-            db.ConnectionString = "Data Source=testdb1.db;";
-            await db.OpenAsync();
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
-            lock (Locker)
-            {
-                _count++;
-            }
-
-            return _count;
+            await using var db = CreateConnection();
+            await db.ExecuteAsync("INSERT INTO TestTable (data) VALUES (@data)", new {data = item});
+            var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM TestTable");
+            return count;
         }
 
         public async Task<int> InsertMany(IEnumerable<int> items)
         {
-            await using var db = new SQLiteConnection();
-            db.ConnectionString = "Data Source=testdb2.db;";
-            await db.OpenAsync();
-            var length = items.ToArray().Length;
-            await Task.Delay(TimeSpan.FromMilliseconds(1 * length));
-            lock (Locker)
+            await using var db = CreateConnection();
+            var array = items.ToArray();
+            var ps = new DynamicParameters();
+
+            var sb = new StringBuilder("INSERT INTO TestTable (data) VALUES");
+            for (var i = 0; i < array.Length; i++)
             {
-                _count += length;
+                var name = $"data{i}";
+                sb.Append(i == array.Length - 1 ? $"(@{name});" : $"(@{name}),");
+                ps.Add(name, array[i]);
             }
 
-            return _count;
+            await db.ExecuteAsync(sb.ToString(), ps);
+            var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM TestTable");
+            return count;
         }
+
+        private async Task CreateDatabase()
+        {
+            if (File.Exists(DbFilePath))
+            {
+                File.Delete(DbFilePath);
+            }
+
+            await using var db = CreateConnection();
+            await db.ExecuteAsync(@$"CREATE TABLE IF NOT EXISTS TestTable (data int PRIMARY KEY) WITHOUT ROWID;");
+        }
+
+        private SQLiteConnection CreateConnection()
+        {
+            return new SQLiteConnection {ConnectionString = $"Data Source={DbFilePath};"};
+        }
+
+        private string DbFilePath => "testdb.db";
     }
 }

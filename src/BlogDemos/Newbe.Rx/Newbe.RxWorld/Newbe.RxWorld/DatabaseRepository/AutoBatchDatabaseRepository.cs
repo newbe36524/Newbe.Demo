@@ -22,9 +22,9 @@ namespace Newbe.RxWorld.DatabaseRepository
             _testOutputHelper = testOutputHelper;
             _database = database;
             _subject = new Subject<BatchItem>();
-            _subject.Buffer(TimeSpan.FromMilliseconds(10))
+            _subject.Buffer(TimeSpan.FromMilliseconds(50), 100)
                 .Select(list => Observable.FromAsync(() => BatchInsertData(list)))
-                .Merge()
+                .Concat()
                 .Subscribe();
         }
 
@@ -67,7 +67,7 @@ namespace Newbe.RxWorld.DatabaseRepository
             }
         }
 
-        private class BatchItem
+        private struct BatchItem
         {
             public TaskCompletionSource<int> TaskCompletionSource { get; set; }
             public int Item { get; set; }
