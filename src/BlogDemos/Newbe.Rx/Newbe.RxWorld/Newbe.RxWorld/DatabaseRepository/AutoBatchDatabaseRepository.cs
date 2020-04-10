@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -43,6 +42,11 @@ namespace Newbe.RxWorld.DatabaseRepository
         {
             var batchItems = items as BatchItem[] ?? items.ToArray();
             var count = batchItems.Length;
+            if (count <= 0)
+            {
+                return;
+            }
+
             try
             {
                 var totalCount = await _database.InsertMany(batchItems.Select(x => x.Item));

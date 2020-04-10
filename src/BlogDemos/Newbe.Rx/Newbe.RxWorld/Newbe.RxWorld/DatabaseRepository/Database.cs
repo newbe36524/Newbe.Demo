@@ -8,6 +8,12 @@ using Dapper;
 
 namespace Newbe.RxWorld.DatabaseRepository
 {
+    public interface IDatabase
+    {
+        Task<int> InsertOne(int item);
+        Task<int> InsertMany(IEnumerable<int> items);
+    }
+
     public class Database : IDatabase
     {
         public Database()
@@ -29,15 +35,16 @@ namespace Newbe.RxWorld.DatabaseRepository
             var array = items.ToArray();
             var ps = new DynamicParameters();
 
-            var sb = new StringBuilder("INSERT INTO TestTable (data) VALUES");
+            var sqlBuilder = new StringBuilder("INSERT INTO TestTable (data) VALUES");
             for (var i = 0; i < array.Length; i++)
             {
                 var name = $"data{i}";
-                sb.Append(i == array.Length - 1 ? $"(@{name});" : $"(@{name}),");
+                sqlBuilder.Append(i == array.Length - 1 ? $"(@{name});" : $"(@{name}),");
                 ps.Add(name, array[i]);
             }
 
-            await db.ExecuteAsync(sb.ToString(), ps);
+            var sql = sqlBuilder.ToString();
+            await db.ExecuteAsync(sql, ps);
             var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM TestTable");
             return count;
         }

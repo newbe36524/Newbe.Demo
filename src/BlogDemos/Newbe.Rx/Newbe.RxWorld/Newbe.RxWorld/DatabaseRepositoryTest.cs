@@ -40,9 +40,17 @@ namespace Newbe.RxWorld
         }
 
         [Fact]
-        public async Task Batch12345()
+        public async Task AutoBatchDatabaseRepository12345()
         {
             var repo = new AutoBatchDatabaseRepository(_testOutputHelper, new Database());
+            await RunTest(repo, 10000, 2000, 300, 40, 5);
+        }
+
+
+        [Fact]
+        public async Task ConcurrentDicDatabaseRepository12345()
+        {
+            var repo = new ConcurrentDicDatabaseRepository(_testOutputHelper, new Database());
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
@@ -51,13 +59,20 @@ namespace Newbe.RxWorld
             var start = 0;
             foreach (var count in counts)
             {
-                var sw = Stopwatch.StartNew();
-                var allCount = await Task.WhenAll(Enumerable.Range(start, count).Select(repo.InsertData));
-                _testOutputHelper.WriteLine($"time : {sw.ElapsedMilliseconds}");
-                var currentCount = allCount.Max();
-                _testOutputHelper.WriteLine($"current total count : {currentCount}");
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
-                start += count;
+                try
+                {
+                    var sw = Stopwatch.StartNew();
+                    var allCount = await Task.WhenAll(Enumerable.Range(start, count).Select(repo.InsertData));
+                    _testOutputHelper.WriteLine($"time : {sw.ElapsedMilliseconds}");
+                    var currentCount = allCount.Max();
+                    _testOutputHelper.WriteLine($"current total count : {currentCount}");
+                    await Task.Delay(TimeSpan.FromMilliseconds(10));
+                    start += count;
+                }
+                catch (Exception e)
+                {
+                    _testOutputHelper.WriteLine($"there is an error : {e}");
+                }
             }
         }
     }
