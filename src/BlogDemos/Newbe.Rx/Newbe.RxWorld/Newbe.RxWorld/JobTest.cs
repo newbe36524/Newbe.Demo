@@ -20,8 +20,7 @@ namespace Newbe.RxWorld
         public void RunManually()
         {
             var timeSpan = TimeSpan.FromMilliseconds(500);
-            var handler = new ActionJobHandler(() => _testOutputHelper.WriteLine($"now : {DateTime.Now}"));
-            var job = new Job(timeSpan, handler);
+            var job = new Job(timeSpan, () => _testOutputHelper.WriteLine($"now : {DateTime.Now}"));
             Thread.Sleep(TimeSpan.FromSeconds(3));
             job.RunManually();
             job.RunManually();
@@ -32,15 +31,13 @@ namespace Newbe.RxWorld
         public void Concurrent()
         {
             var timeSpan = TimeSpan.FromMilliseconds(500);
-            var handler = new ActionJobHandler(() =>
+            _ = new Job(timeSpan, () =>
             {
                 Thread.Sleep(TimeSpan.FromSeconds(1));
                 _testOutputHelper.WriteLine($"now : {DateTime.Now}");
             });
-            var job = new Job(timeSpan, handler);
             Thread.Sleep(TimeSpan.FromSeconds(3));
         }
-
 
         public interface IJob
         {
@@ -49,41 +46,20 @@ namespace Newbe.RxWorld
 
         private class Job : IJob
         {
-            private readonly IJobHandler _handler;
+            private readonly Action _handler;
 
             public Job(
                 TimeSpan timeSpan,
-                IJobHandler handler)
+                Action handler)
             {
                 _handler = handler;
                 var observable = Observable.Interval(timeSpan);
-                observable.Subscribe(l => _handler.Run());
+                observable.Subscribe(l => _handler());
             }
 
             public void RunManually()
             {
-                _handler.Run();
-            }
-        }
-
-        public interface IJobHandler
-        {
-            void Run();
-        }
-
-        private class ActionJobHandler : IJobHandler
-        {
-            private readonly Action _action;
-
-            public ActionJobHandler(
-                Action action)
-            {
-                _action = action;
-            }
-
-            public void Run()
-            {
-                _action();
+                _handler();
             }
         }
     }

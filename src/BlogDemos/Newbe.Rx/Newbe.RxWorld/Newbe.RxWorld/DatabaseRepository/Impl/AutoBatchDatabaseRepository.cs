@@ -6,7 +6,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace Newbe.RxWorld.DatabaseRepository
+namespace Newbe.RxWorld.DatabaseRepository.Impl
 {
     public class AutoBatchDatabaseRepository : IDatabaseRepository
     {
@@ -22,6 +22,7 @@ namespace Newbe.RxWorld.DatabaseRepository
             _database = database;
             _subject = new Subject<BatchItem>();
             _subject.Buffer(TimeSpan.FromMilliseconds(50), 100)
+                .Where(x => x.Count > 0)
                 .Select(list => Observable.FromAsync(() => BatchInsertData(list)))
                 .Concat()
                 .Subscribe();
@@ -41,12 +42,6 @@ namespace Newbe.RxWorld.DatabaseRepository
         private async Task BatchInsertData(IEnumerable<BatchItem> items)
         {
             var batchItems = items as BatchItem[] ?? items.ToArray();
-            var count = batchItems.Length;
-            if (count <= 0)
-            {
-                return;
-            }
-
             try
             {
                 var totalCount = await _database.InsertMany(batchItems.Select(x => x.Item));
@@ -65,10 +60,7 @@ namespace Newbe.RxWorld.DatabaseRepository
                 throw;
             }
 
-            if (count > 0)
-            {
-                _testOutputHelper.WriteLine($"{count} items data inserted");
-            }
+            _testOutputHelper.WriteLine($"{batchItems.Length} items data inserted");
         }
 
         private struct BatchItem

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Newbe.RxWorld.DatabaseRepository;
+using Newbe.RxWorld.DatabaseRepository.Impl;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,11 +47,18 @@ namespace Newbe.RxWorld
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
+        [Fact]
+        public async Task AutoBatchDatabaseRepositoryV212345()
+        {
+            var repo = new AllObservableDatabaseRepository(_testOutputHelper, new Database());
+            await RunTest(repo, 10000, 2000, 300, 40, 5);
+        }
+
 
         [Fact]
         public async Task ConcurrentDicDatabaseRepository12345()
         {
-            var repo = new ConcurrentDicDatabaseRepository(_testOutputHelper, new Database());
+            var repo = new ConcurrentQueueDatabaseRepository(_testOutputHelper, new Database());
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 

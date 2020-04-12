@@ -1,8 +1,7 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace Newbe.RxWorld.DatabaseRepository
+namespace Newbe.RxWorld.DatabaseRepository.Impl
 {
     public class NormalDatabaseRepository : IDatabaseRepository
     {

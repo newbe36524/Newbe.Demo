@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace Newbe.RxWorld.DatabaseRepository
+namespace Newbe.RxWorld.DatabaseRepository.Impl
 {
-    public class ConcurrentDicDatabaseRepository : IDatabaseRepository
+    public class ConcurrentQueueDatabaseRepository : IDatabaseRepository
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly IDatabase _database;
@@ -17,7 +17,7 @@ namespace Newbe.RxWorld.DatabaseRepository
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         private readonly Task _batchInsertDataTask;
 
-        public ConcurrentDicDatabaseRepository(
+        public ConcurrentQueueDatabaseRepository(
             ITestOutputHelper testOutputHelper,
             IDatabase database)
         {

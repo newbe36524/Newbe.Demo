@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using Xunit;
 using Xunit.Abstractions;
+using System;
 
 namespace Newbe.RxWorld
 {
@@ -29,13 +29,11 @@ namespace Newbe.RxWorld
         }
 
         [Fact]
-        public void Obver()
+        public void ObservableTest()
         {
             var root = CreateTree();
             var observable = DfsAsEnumerable(root).ToObservable();
-            using (observable.Subscribe(Observer.Create<TreeNode>(VisitNode)))
-            {
-            }
+            observable.Subscribe(VisitNode);
         }
 
         [Fact]
