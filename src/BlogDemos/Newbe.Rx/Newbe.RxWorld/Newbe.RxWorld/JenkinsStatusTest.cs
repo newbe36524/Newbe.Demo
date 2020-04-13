@@ -34,7 +34,7 @@ namespace Newbe.RxWorld
                         .FirstAsync()
                         .Subscribe(status => { SendEmail(item.url, status); });
                 });
-            
+
             jenkinsMonitor.OnNext("https://www.newbe.pro");
             jenkinsMonitor.OnNext("https://www.newbe.pro?id=666");
             jenkinsMonitor.OnNext("https://www.newbe.pro");

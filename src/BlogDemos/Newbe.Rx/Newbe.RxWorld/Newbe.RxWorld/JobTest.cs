@@ -20,7 +20,7 @@ namespace Newbe.RxWorld
         public void RunManually()
         {
             var timeSpan = TimeSpan.FromMilliseconds(500);
-            var job = new Job(timeSpan, () => _testOutputHelper.WriteLine($"now : {DateTime.Now}"));
+            IJob job = new Job(timeSpan, () => _testOutputHelper.WriteLine($"now : {DateTime.Now}"));
             Thread.Sleep(TimeSpan.FromSeconds(3));
             job.RunManually();
             job.RunManually();
@@ -39,7 +39,7 @@ namespace Newbe.RxWorld
             Thread.Sleep(TimeSpan.FromSeconds(3));
         }
 
-        public interface IJob
+        private interface IJob
         {
             void RunManually();
         }
