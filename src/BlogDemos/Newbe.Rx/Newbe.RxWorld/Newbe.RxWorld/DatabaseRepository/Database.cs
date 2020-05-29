@@ -62,7 +62,8 @@ namespace Newbe.RxWorld.DatabaseRepository
 
         private SQLiteConnection CreateConnection()
         {
-            return new SQLiteConnection {ConnectionString = $"Data Source={DbFilePath};"};
+            return new SQLiteConnection
+                {ConnectionString = $"Data Source={DbFilePath};Cache Size=5000;Journal Mode=WAL;Pooling=True;"};
         }
 
         private string DbFilePath => "testdb.db";
