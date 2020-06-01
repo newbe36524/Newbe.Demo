@@ -48,12 +48,11 @@ namespace Newbe.RxWorld
         }
 
         [Fact]
-        public async Task AutoBatchDatabaseRepositoryV212345()
+        public async Task FinalDatabaseRepository12345()
         {
-            var repo = new AllObservableDatabaseRepository(_testOutputHelper, new Database());
+            var repo = new FinalDatabaseRepository(new Database());
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
-
 
         [Fact]
         public async Task ConcurrentDicDatabaseRepository12345()

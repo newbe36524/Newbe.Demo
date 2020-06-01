@@ -59,8 +59,6 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
 
                 throw;
             }
-
-            _testOutputHelper.WriteLine($"{batchItems.Length} items data inserted");
         }
 
         private struct BatchItem

@@ -85,7 +85,6 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
         private async Task BatchInsertData(IEnumerable<BatchItem> items)
         {
             var batchItems = items as BatchItem[] ?? items.ToArray();
-            var count = batchItems.Length;
             try
             {
                 var totalCount = await _database.InsertMany(batchItems.Select(x => x.Item));
@@ -102,11 +101,6 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
                 }
 
                 throw;
-            }
-
-            if (count > 0)
-            {
-                _testOutputHelper.WriteLine($"{count} items data inserted");
             }
         }
 
