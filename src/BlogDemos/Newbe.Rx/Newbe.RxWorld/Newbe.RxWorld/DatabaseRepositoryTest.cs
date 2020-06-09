@@ -12,52 +12,54 @@ namespace Newbe.RxWorld
     public class DatabaseRepositoryTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
+        private readonly IDatabase _database;
 
         public DatabaseRepositoryTest(
             ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
+            _database = new SQLiteDatabase();
         }
 
         [Fact]
         public async Task Normal10()
         {
-            var repo = new NormalDatabaseRepository(_testOutputHelper, new Database());
+            var repo = new NormalDatabaseRepository(_testOutputHelper, _database);
             await RunTest(repo, 10);
         }
 
         [Fact]
         public async Task Batch10()
         {
-            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, new Database());
+            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, _database);
             await RunTest(repo, 10);
         }
 
         [Fact]
         public async Task Normal12345()
         {
-            var repo = new NormalDatabaseRepository(_testOutputHelper, new Database());
+            var repo = new NormalDatabaseRepository(_testOutputHelper, _database);
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
         [Fact]
         public async Task AutoBatchDatabaseRepository12345()
         {
-            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, new Database());
+            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, _database);
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
         [Fact]
         public async Task FinalDatabaseRepository12345()
         {
-            var repo = new FinalDatabaseRepository(new Database());
+            var repo = new FinalDatabaseRepository(_database);
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
         [Fact]
         public async Task ConcurrentDicDatabaseRepository12345()
         {
-            var repo = new ConcurrentQueueDatabaseRepository(_testOutputHelper, new Database());
+            var repo = new ConcurrentQueueDatabaseRepository(_testOutputHelper, _database);
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
