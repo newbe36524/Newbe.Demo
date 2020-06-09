@@ -1,22 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Data.SQLite;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace Newbe.RxWorld.DatabaseRepository
 {
-    public interface IDatabase
+    public class SQLServerDatabase : IDatabase
     {
-        Task<int> InsertOne(int item);
-        Task<int> InsertMany(IEnumerable<int> items);
-    }
-
-    public class Database : IDatabase
-    {
-        public Database()
+        public SQLServerDatabase()
         {
             CreateDatabase().Wait();
         }
@@ -45,27 +39,26 @@ namespace Newbe.RxWorld.DatabaseRepository
 
             var sql = sqlBuilder.ToString();
             await db.ExecuteAsync(sql, ps);
+
             var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM TestTable");
             return count;
         }
 
         private async Task CreateDatabase()
         {
-            if (File.Exists(DbFilePath))
-            {
-                File.Delete(DbFilePath);
-            }
-
             await using var db = CreateConnection();
-            await db.ExecuteAsync(@$"CREATE TABLE IF NOT EXISTS TestTable (data int PRIMARY KEY) WITHOUT ROWID;");
+            await db.ExecuteAsync(@"
+DROP TABLE IF EXISTS TestTable;
+CREATE TABLE TestTable (data int PRIMARY KEY);");
         }
 
-        private SQLiteConnection CreateConnection()
+        private static SqlConnection CreateConnection()
         {
-            return new SQLiteConnection
-                {ConnectionString = $"Data Source={DbFilePath};Cache Size=5000;Journal Mode=WAL;Pooling=True;"};
+            var sqlConnection = new SqlConnection
+            {
+                ConnectionString = "Data Source=localhost;User ID=sa;Password=sapwd;Persist Security Info=True;"
+            };
+            return sqlConnection;
         }
-
-        private string DbFilePath => "testdb.db";
     }
 }
