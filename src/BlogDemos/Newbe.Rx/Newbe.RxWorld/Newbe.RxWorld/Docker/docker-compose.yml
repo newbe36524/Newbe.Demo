@@ -1,0 +1,12 @@
+version: "3.3"
+
+services:
+  mq:
+    image: rabbitmq:3-management
+    ports:
+    - 5672:5672
+    - 15672:15672
+    deploy:
+      resources:
+        reservations:
+          memory: 4096m

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Newbe.RxWorld.DatabaseRepository;
 using Newbe.RxWorld.DatabaseRepository.Impl;
@@ -12,54 +14,58 @@ namespace Newbe.RxWorld
     public class DatabaseRepositoryTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private readonly IDatabase _database;
 
         public DatabaseRepositoryTest(
             ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _database = new SQLiteDatabase();
         }
+
+        private static IDatabase CreateDataBase(string dbName)
+            => new SQLiteDatabase($"{dbName}.db");
 
         [Fact]
         public async Task Normal10()
         {
-            var repo = new NormalDatabaseRepository(_testOutputHelper, _database);
+            var repo = new NormalDatabaseRepository(_testOutputHelper, CreateDataBase(nameof(Normal10)));
             await RunTest(repo, 10);
         }
 
         [Fact]
         public async Task Batch10()
         {
-            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, _database);
+            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, CreateDataBase(nameof(Batch10)));
             await RunTest(repo, 10);
         }
 
         [Fact]
         public async Task Normal12345()
         {
-            var repo = new NormalDatabaseRepository(_testOutputHelper, _database);
+            var repo = new NormalDatabaseRepository(_testOutputHelper, CreateDataBase(nameof(Normal12345)));
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
         [Fact]
         public async Task AutoBatchDatabaseRepository12345()
         {
-            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, _database);
+            var db = CreateDataBase(nameof(AutoBatchDatabaseRepository12345));
+            var repo = new AutoBatchDatabaseRepository(_testOutputHelper, db);
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
         [Fact]
         public async Task FinalDatabaseRepository12345()
         {
-            var repo = new FinalDatabaseRepository(_database);
+            var db = CreateDataBase(nameof(FinalDatabaseRepository12345));
+            var repo = new FinalDatabaseRepository(db);
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
         [Fact]
         public async Task ConcurrentDicDatabaseRepository12345()
         {
-            var repo = new ConcurrentQueueDatabaseRepository(_testOutputHelper, _database);
+            var db = CreateDataBase(nameof(ConcurrentDicDatabaseRepository12345));
+            var repo = new ConcurrentQueueDatabaseRepository(_testOutputHelper, db);
             await RunTest(repo, 10000, 2000, 300, 40, 5);
         }
 
@@ -71,10 +77,13 @@ namespace Newbe.RxWorld
                 try
                 {
                     var sw = Stopwatch.StartNew();
-                    var allCount = await Task.WhenAll(Enumerable.Range(start, count).Select(repo.InsertData));
+                    var task = Enumerable.Range(start, count)
+                        .ToObservable()
+                        .Select(i => Observable.FromAsync(() => repo.InsertData(i)))
+                        .Merge(100)
+                        .ToTask();
+                    await task;
                     _testOutputHelper.WriteLine($"time : {sw.ElapsedMilliseconds}");
-                    var currentCount = allCount.Max();
-                    _testOutputHelper.WriteLine($"current total count : {currentCount}");
                     await Task.Delay(TimeSpan.FromMilliseconds(10));
                     start += count;
                 }

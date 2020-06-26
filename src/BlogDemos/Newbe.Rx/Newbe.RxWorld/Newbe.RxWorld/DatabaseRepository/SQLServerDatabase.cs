@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Data.SQLite;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +42,16 @@ namespace Newbe.RxWorld.DatabaseRepository
 
             var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM TestTable");
             return count;
+        }
+
+        public Task<int> UpsertOne(int key, int value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task<int> UpsertMany(Dictionary<int, int> values)
+        {
+            throw new NotSupportedException();
         }
 
         private async Task CreateDatabase()

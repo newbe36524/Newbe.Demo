@@ -5,7 +5,7 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
 {
     public class FinalDatabaseRepository : IDatabaseRepository
     {
-        private readonly IBatchOperator<int, int> _batchOperator;
+        private readonly IBatchOperator<int, int> _batchInsertOperator;
 
         public FinalDatabaseRepository(
             IDatabase database)
@@ -16,12 +16,12 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
                 BufferCount = 100,
                 DoManyFunc = database.InsertMany,
             };
-            _batchOperator = new BatchOperator<int, int>(options);
+            _batchInsertOperator = new BatchOperator<int, int>(options);
         }
 
         public Task<int> InsertData(int item)
         {
-            return _batchOperator.CreateTask(item);
+            return _batchInsertOperator.CreateTask(item);
         }
     }
 }
