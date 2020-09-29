@@ -58,7 +58,23 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(FinalDatabaseRepository12345));
             var repo = new FinalDatabaseRepository(db);
-            await RunTest(repo, 10000, 2000, 300, 40, 5);
+            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+        }
+
+        [Fact]
+        public async Task ReactiveChannelDatabaseRepository()
+        {
+            var db = CreateDataBase(nameof(ReactiveChannelDatabaseRepository));
+            var repo = new ReactiveChannelDatabaseRepository(_testOutputHelper, db);
+            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+        }
+        
+        [Fact]
+        public async Task ChannelDatabaseRepository()
+        {
+            var db = CreateDataBase(nameof(ChannelDatabaseRepository));
+            var repo = new ChannelDatabaseRepository(_testOutputHelper, db);
+            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
         }
 
         [Fact]
