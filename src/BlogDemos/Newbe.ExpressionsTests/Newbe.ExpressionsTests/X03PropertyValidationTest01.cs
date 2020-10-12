@@ -7,9 +7,12 @@ using NUnit.Framework;
 
 namespace Newbe.ExpressionsTests
 {
-    public class X03PropertyValidationTest1
+    /// <summary>
+    /// Validate date by func created with Expression
+    /// </summary>
+    public class X03PropertyValidationTest01
     {
-        private const int Count = 1000;
+        private const int Count = 10_000;
 
         private static Func<CreateClaptrapInput, int, ValidateResult> _func;
 
@@ -18,7 +21,7 @@ namespace Newbe.ExpressionsTests
         {
             try
             {
-                var method = typeof(X03PropertyValidationTest1).GetMethod(nameof(ValidateCore));
+                var method = typeof(X03PropertyValidationTest01).GetMethod(nameof(ValidateCore));
                 Debug.Assert(method != null, nameof(method) + " != null");
                 var pExp = Expression.Parameter(typeof(CreateClaptrapInput));
                 var minLengthPExp = Expression.Parameter(typeof(int));

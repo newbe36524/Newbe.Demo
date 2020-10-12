@@ -4,9 +4,12 @@ using NUnit.Framework;
 
 namespace Newbe.ExpressionsTests
 {
-    public class X03PropertyValidationTest0
+    /// <summary>
+    /// Validate data by static method
+    /// </summary>
+    public class X03PropertyValidationTest00
     {
-        private const int Count = 1000;
+        private const int Count = 10_000;
 
         [Test]
         public void Run()

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -9,11 +12,14 @@ using NUnit.Framework;
 
 namespace Newbe.ExpressionsTests
 {
-    public class X03PropertyValidationTest2
+    /// <summary>
+    /// Using Attribute
+    /// </summary>
+    public class X03PropertyValidationTest05
     {
-        private const int Count = 1000;
+        private const int Count = 10_000;
 
-        private static Func<CreateClaptrapInput, int, ValidateResult> _func;
+        private static Func<CreateClaptrapInput, ValidateResult> _func;
 
         [SetUp]
         public void Init()
@@ -23,11 +29,10 @@ namespace Newbe.ExpressionsTests
                 var finalExpression = CreateCore();
                 _func = finalExpression.Compile();
 
-                Expression<Func<CreateClaptrapInput, int, ValidateResult>> CreateCore()
+                Expression<Func<CreateClaptrapInput, ValidateResult>> CreateCore()
                 {
                     // exp for input
                     var inputExp = Expression.Parameter(typeof(CreateClaptrapInput), "input");
-                    var minLengthPExp = Expression.Parameter(typeof(int), "minLength");
 
                     // exp for output
                     var resultExp = Expression.Variable(typeof(ValidateResult), "result");
@@ -35,19 +40,38 @@ namespace Newbe.ExpressionsTests
                     // exp for return statement
                     var returnLabel = Expression.Label(typeof(ValidateResult));
 
-                    // build hold block
+                    var innerExps = new List<Expression> {CreateDefaultResult()};
+
+                    var stringProps = typeof(CreateClaptrapInput)
+                        .GetProperties()
+                        .Where(x => x.PropertyType == typeof(string));
+
+                    foreach (var propertyInfo in stringProps)
+                    {
+                        if (propertyInfo.GetCustomAttribute<RequiredAttribute>() != null)
+                        {
+                            innerExps.Add(CreateValidateStringRequiredExpression(propertyInfo));
+                        }
+
+                        var minlengthAttribute = propertyInfo.GetCustomAttribute<MinLengthAttribute>();
+                        if (minlengthAttribute != null)
+                        {
+                            innerExps.Add(
+                                CreateValidateStringMinLengthExpression(propertyInfo, minlengthAttribute.Length));
+                        }
+                    }
+
+                    innerExps.Add(Expression.Label(returnLabel, resultExp));
+
+                    // build whole block
                     var body = Expression.Block(
                         new[] {resultExp},
-                        CreateDefaultResult(),
-                        CreateValidateNameRequiredExpression(),
-                        CreateValidateNameMinLengthExpression(),
-                        Expression.Label(returnLabel, resultExp));
+                        innerExps);
 
                     // build lambda from body
-                    var final = Expression.Lambda<Func<CreateClaptrapInput, int, ValidateResult>>(
+                    var final = Expression.Lambda<Func<CreateClaptrapInput, ValidateResult>>(
                         body,
-                        inputExp,
-                        minLengthPExp);
+                        inputExp);
                     return final;
 
                     Expression CreateDefaultResult()
@@ -63,14 +87,17 @@ namespace Newbe.ExpressionsTests
                         return re;
                     }
 
-                    Expression CreateValidateNameRequiredExpression()
+                    Expression CreateValidateStringRequiredExpression(PropertyInfo propertyInfo)
                     {
-                        var requireMethod = typeof(X03PropertyValidationTest2).GetMethod(nameof(ValidateNameRequired));
+                        var requireMethod = typeof(X03PropertyValidationTest05).GetMethod(nameof(ValidateStringRequired));
                         var isOkProperty = typeof(ValidateResult).GetProperty(nameof(ValidateResult.IsOk));
                         Debug.Assert(requireMethod != null, nameof(requireMethod) + " != null");
                         Debug.Assert(isOkProperty != null, nameof(isOkProperty) + " != null");
 
-                        var requiredMethodExp = Expression.Call(requireMethod, inputExp);
+                        var namePropExp = Expression.Property(inputExp, propertyInfo);
+                        var nameNameExp = Expression.Constant(propertyInfo.Name);
+
+                        var requiredMethodExp = Expression.Call(requireMethod, nameNameExp, namePropExp);
                         var assignExp = Expression.Assign(resultExp, requiredMethodExp);
                         var resultIsOkPropertyExp = Expression.Property(resultExp, isOkProperty);
                         var conditionExp = Expression.IsFalse(resultIsOkPropertyExp);
@@ -81,26 +108,25 @@ namespace Newbe.ExpressionsTests
                             new[] {resultExp},
                             assignExp,
                             ifThenExp);
-                        /**
-                         * final as:
-                         * result = ValidateNameRequired(input);
-                         * if (!result.IsOk)
-                         * {
-                         *     return result;
-                         * }
-                         */
                         return re;
                     }
 
-                    Expression CreateValidateNameMinLengthExpression()
+                    Expression CreateValidateStringMinLengthExpression(PropertyInfo propertyInfo,
+                        int minlengthAttributeLength)
                     {
                         var minLengthMethod =
-                            typeof(X03PropertyValidationTest2).GetMethod(nameof(ValidateNameMinLength));
+                            typeof(X03PropertyValidationTest05).GetMethod(nameof(ValidateStringMinLength));
                         var isOkProperty = typeof(ValidateResult).GetProperty(nameof(ValidateResult.IsOk));
                         Debug.Assert(minLengthMethod != null, nameof(minLengthMethod) + " != null");
                         Debug.Assert(isOkProperty != null, nameof(isOkProperty) + " != null");
 
-                        var requiredMethodExp = Expression.Call(minLengthMethod, inputExp, minLengthPExp);
+                        var namePropExp = Expression.Property(inputExp, propertyInfo);
+                        var nameNameExp = Expression.Constant(propertyInfo.Name);
+
+                        var requiredMethodExp = Expression.Call(minLengthMethod,
+                            nameNameExp,
+                            namePropExp,
+                            Expression.Constant(minlengthAttributeLength));
                         var assignExp = Expression.Assign(resultExp, requiredMethodExp);
                         var resultIsOkPropertyExp = Expression.Property(resultExp, isOkProperty);
                         var conditionExp = Expression.IsFalse(resultIsOkPropertyExp);
@@ -111,14 +137,6 @@ namespace Newbe.ExpressionsTests
                             new[] {resultExp},
                             assignExp,
                             ifThenExp);
-                        /**
-                        * final as:
-                        * result = ValidateNameMinLength(input, minLength);
-                        * if (!result.IsOk)
-                        * {
-                        *     return result;
-                        * }
-                        */
                         return re;
                     }
                 }
@@ -137,7 +155,10 @@ namespace Newbe.ExpressionsTests
             {
                 // test 1
                 {
-                    var input = new CreateClaptrapInput();
+                    var input = new CreateClaptrapInput
+                    {
+                        NickName = "newbe36524"
+                    };
                     var (isOk, errorMessage) = Validate(input);
                     isOk.Should().BeFalse();
                     errorMessage.Should().Be("missing Name");
@@ -147,7 +168,8 @@ namespace Newbe.ExpressionsTests
                 {
                     var input = new CreateClaptrapInput
                     {
-                        Name = "1"
+                        Name = "1",
+                        NickName = "newbe36524"
                     };
                     var (isOk, errorMessage) = Validate(input);
                     isOk.Should().BeFalse();
@@ -158,7 +180,8 @@ namespace Newbe.ExpressionsTests
                 {
                     var input = new CreateClaptrapInput
                     {
-                        Name = "yueluo is the only one dalao"
+                        Name = "yueluo is the only one dalao",
+                        NickName = "newbe36524"
                     };
                     var (isOk, errorMessage) = Validate(input);
                     isOk.Should().BeTrue();
@@ -169,20 +192,20 @@ namespace Newbe.ExpressionsTests
 
         public static ValidateResult Validate(CreateClaptrapInput input)
         {
-            return _func.Invoke(input, 3);
+            return _func.Invoke(input);
         }
 
-        public static ValidateResult ValidateNameRequired(CreateClaptrapInput input)
+        public static ValidateResult ValidateStringRequired(string name, string value)
         {
-            return string.IsNullOrEmpty(input.Name)
-                ? ValidateResult.Error("missing Name")
+            return string.IsNullOrEmpty(value)
+                ? ValidateResult.Error($"missing {name}")
                 : ValidateResult.Ok();
         }
 
-        public static ValidateResult ValidateNameMinLength(CreateClaptrapInput input, int minLength)
+        public static ValidateResult ValidateStringMinLength(string name, string value, int minLength)
         {
-            return input.Name.Length < minLength
-                ? ValidateResult.Error($"Length of Name should be great than {minLength}")
+            return value.Length < minLength
+                ? ValidateResult.Error($"Length of {name} should be great than {minLength}")
                 : ValidateResult.Ok();
         }
 
@@ -190,6 +213,7 @@ namespace Newbe.ExpressionsTests
         public class CreateClaptrapInput
         {
             [Required] [MinLength(3)] public string Name { get; set; }
+            [Required] [MinLength(3)] public string NickName { get; set; }
         }
 
         public struct ValidateResult
