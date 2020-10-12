@@ -50,6 +50,18 @@ namespace Newbe.ExpressionsTests
             claptrap.Level.Should().Be(Count * Diff);
         }
 
+        [Test]
+        public void Directly()
+        {
+            var claptrap = new Claptrap();
+            for (int i = 0; i < Count; i++)
+            {
+                claptrap.LevelUp(Diff);
+            }
+
+            claptrap.Level.Should().Be(Count * Diff);
+        }
+
         private MethodInfo _methodInfo;
         private Action<Claptrap, int> _func;
 
