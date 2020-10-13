@@ -134,7 +134,10 @@ namespace Newbe.ExpressionsTests
                     .As<IValidatorFactory>()
                     .SingleInstance();
 
-                builder.RegisterType<AttributeBaseStringPropertyValidatorFactory>()
+                builder.RegisterType<StringRequiredPropertyValidatorFactory>()
+                    .As<IPropertyValidatorFactory>()
+                    .SingleInstance();
+                builder.RegisterType<StringLengthPropertyValidatorFactory>()
                     .As<IPropertyValidatorFactory>()
                     .SingleInstance();
             }
@@ -195,22 +198,13 @@ namespace Newbe.ExpressionsTests
             }
         }
 
-        public class AttributeBaseStringPropertyValidatorFactory : PropertyValidatorFactoryBase<string>
+        public class StringRequiredPropertyValidatorFactory : PropertyValidatorFactoryBase<string>
         {
             private static Expression<Func<string, string, ValidateResult>> CreateValidateStringRequiredExp()
             {
                 return (name, value) =>
                     string.IsNullOrEmpty(value)
                         ? ValidateResult.Error($"missing {name}")
-                        : ValidateResult.Ok();
-            }
-
-            private static Expression<Func<string, string, ValidateResult>> CreateValidateStringMinLengthExp(
-                int minLength)
-            {
-                return (name, value) =>
-                    value.Length < minLength
-                        ? ValidateResult.Error($"Length of {name} should be great than {minLength}")
                         : ValidateResult.Ok();
             }
 
@@ -221,7 +215,23 @@ namespace Newbe.ExpressionsTests
                 {
                     yield return CreateValidateExpression(input, CreateValidateStringRequiredExp());
                 }
+            }
+        }
 
+        public class StringLengthPropertyValidatorFactory : PropertyValidatorFactoryBase<string>
+        {
+            private static Expression<Func<string, string, ValidateResult>> CreateValidateStringMinLengthExp(
+                int minLength)
+            {
+                return (name, value) =>
+                    string.IsNullOrEmpty(value) || value.Length < minLength
+                        ? ValidateResult.Error($"Length of {name} should be great than {minLength}")
+                        : ValidateResult.Ok();
+            }
+
+            protected override IEnumerable<Expression> CreateExpressionCore(CreatePropertyValidatorInput input)
+            {
+                var propertyInfo = input.PropertyInfo;
                 var minlengthAttribute = propertyInfo.GetCustomAttribute<MinLengthAttribute>();
                 if (minlengthAttribute != null)
                 {
