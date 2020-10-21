@@ -87,6 +87,19 @@ namespace Newbe.ExpressionsTests
                     isOk.Should().BeFalse();
                     errorMessage.Should().Be("Length of Name should be less than 10");
                 }
+
+                // test 5
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo",
+                        NickName = "newbe36524",
+                        Age = -100
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be($"Value of Age should be in [0,{int.MaxValue}]");
+                }
             }
         }
 

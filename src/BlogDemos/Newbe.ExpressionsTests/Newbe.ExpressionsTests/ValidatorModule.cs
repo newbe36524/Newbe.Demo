@@ -13,6 +13,9 @@ namespace Newbe.ExpressionsTests
                 .As<IValidatorFactory>()
                 .SingleInstance();
 
+            builder.RegisterType<IntRangePropertyValidatorFactory>()
+                .As<IPropertyValidatorFactory>()
+                .SingleInstance();
             builder.RegisterType<StringRequiredPropertyValidatorFactory>()
                 .As<IPropertyValidatorFactory>()
                 .SingleInstance();

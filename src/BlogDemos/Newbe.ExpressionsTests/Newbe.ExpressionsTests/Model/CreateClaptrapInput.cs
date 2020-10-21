@@ -10,5 +10,6 @@ namespace Newbe.ExpressionsTests.Model
         public string Name { get; set; }
 
         [Required] [MinLength(3)] public string NickName { get; set; }
+        [Range(0, int.MaxValue)] public int Age { get; set; }
     }
 }
