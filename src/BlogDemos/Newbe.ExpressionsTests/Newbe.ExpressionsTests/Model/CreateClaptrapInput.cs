@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Newbe.ExpressionsTests.Model
 {
@@ -11,5 +12,8 @@ namespace Newbe.ExpressionsTests.Model
 
         [Required] [MinLength(3)] public string NickName { get; set; }
         [Range(0, int.MaxValue)] public int Age { get; set; }
+
+        public int[] Levels { get; set; } = {1};
+        public List<string> List { get; set; } = new List<string> {"123"};
     }
 }

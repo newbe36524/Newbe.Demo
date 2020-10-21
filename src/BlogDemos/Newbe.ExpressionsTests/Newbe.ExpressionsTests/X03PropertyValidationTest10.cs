@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Autofac;
 using FluentAssertions;
@@ -99,6 +100,32 @@ namespace Newbe.ExpressionsTests
                     var (isOk, errorMessage) = Validate(input);
                     isOk.Should().BeFalse();
                     errorMessage.Should().Be($"Value of Age should be in [0,{int.MaxValue}]");
+                }
+                
+                // test 6
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo",
+                        NickName = "newbe36524",
+                        Levels = Array.Empty<int>()
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be("Levels must contains more than one element");
+                }
+                
+                // test 7
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo",
+                        NickName = "newbe36524",
+                        List = new List<string>()
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be("List must contains more than one element");
                 }
             }
         }
