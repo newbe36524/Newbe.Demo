@@ -1,42 +1,15 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Linq.Expressions;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Newbe.ExpressionsTests
+namespace Newbe.ExpressionsTests.Old
 {
     /// <summary>
-    /// Validate date by func created with Expression
+    /// Validate data by static method
     /// </summary>
-    public class X03PropertyValidationTest01
+    public class X03PropertyValidationTest00
     {
         private const int Count = 10_000;
-
-        private static Func<CreateClaptrapInput, int, ValidateResult> _func;
-
-        [SetUp]
-        public void Init()
-        {
-            try
-            {
-                var method = typeof(X03PropertyValidationTest01).GetMethod(nameof(ValidateCore));
-                Debug.Assert(method != null, nameof(method) + " != null");
-                var pExp = Expression.Parameter(typeof(CreateClaptrapInput));
-                var minLengthPExp = Expression.Parameter(typeof(int));
-                var body = Expression.Call(method, pExp, minLengthPExp);
-                var expression = Expression.Lambda<Func<CreateClaptrapInput, int, ValidateResult>>(body,
-                    pExp,
-                    minLengthPExp);
-                _func = expression.Compile();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
 
         [Test]
         public void Run()
@@ -77,7 +50,7 @@ namespace Newbe.ExpressionsTests
 
         public static ValidateResult Validate(CreateClaptrapInput input)
         {
-            return _func.Invoke(input, 3);
+            return ValidateCore(input, 3);
         }
 
         public static ValidateResult ValidateCore(CreateClaptrapInput input, int minLength)
@@ -94,7 +67,6 @@ namespace Newbe.ExpressionsTests
 
             return ValidateResult.Ok();
         }
-
 
         public class CreateClaptrapInput
         {

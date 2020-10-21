@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Newbe.ExpressionsTests
+namespace Newbe.ExpressionsTests.Old
 {
     public class LiveTest
     {

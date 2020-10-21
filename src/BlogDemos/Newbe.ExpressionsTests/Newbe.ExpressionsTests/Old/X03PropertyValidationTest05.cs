@@ -10,12 +10,12 @@ using NUnit.Framework;
 
 // ReSharper disable InvalidXmlDocComment
 
-namespace Newbe.ExpressionsTests
+namespace Newbe.ExpressionsTests.Old
 {
     /// <summary>
-    /// Refactor to CreateValidateExpression
+    /// Using Attribute
     /// </summary>
-    public class X03PropertyValidationTest08
+    public class X03PropertyValidationTest05
     {
         private const int Count = 10_000;
 
@@ -88,27 +88,45 @@ namespace Newbe.ExpressionsTests
                     }
 
                     Expression CreateValidateStringRequiredExpression(PropertyInfo propertyInfo)
-                        => CreateValidateExpression(propertyInfo,
-                            CreateValidateStringRequiredExp());
-
-                    Expression CreateValidateStringMinLengthExpression(PropertyInfo propertyInfo,
-                        int minlengthAttributeLength)
-                        => CreateValidateExpression(propertyInfo,
-                            CreateValidateStringMinLengthExp(minlengthAttributeLength));
-
-                    Expression CreateValidateExpression(PropertyInfo propertyInfo,
-                        Expression<Func<string, string, ValidateResult>> validateFuncExpression)
                     {
+                        var requireMethod = typeof(X03PropertyValidationTest05).GetMethod(nameof(ValidateStringRequired));
                         var isOkProperty = typeof(ValidateResult).GetProperty(nameof(ValidateResult.IsOk));
+                        Debug.Assert(requireMethod != null, nameof(requireMethod) + " != null");
                         Debug.Assert(isOkProperty != null, nameof(isOkProperty) + " != null");
 
                         var namePropExp = Expression.Property(inputExp, propertyInfo);
                         var nameNameExp = Expression.Constant(propertyInfo.Name);
 
-                        var requiredMethodExp = Expression.Invoke(
-                            validateFuncExpression,
+                        var requiredMethodExp = Expression.Call(requireMethod, nameNameExp, namePropExp);
+                        var assignExp = Expression.Assign(resultExp, requiredMethodExp);
+                        var resultIsOkPropertyExp = Expression.Property(resultExp, isOkProperty);
+                        var conditionExp = Expression.IsFalse(resultIsOkPropertyExp);
+                        var ifThenExp =
+                            Expression.IfThen(conditionExp,
+                                Expression.Return(returnLabel, resultExp));
+                        var re = Expression.Block(
+                            new[] {resultExp},
+                            assignExp,
+                            ifThenExp);
+                        return re;
+                    }
+
+                    Expression CreateValidateStringMinLengthExpression(PropertyInfo propertyInfo,
+                        int minlengthAttributeLength)
+                    {
+                        var minLengthMethod =
+                            typeof(X03PropertyValidationTest05).GetMethod(nameof(ValidateStringMinLength));
+                        var isOkProperty = typeof(ValidateResult).GetProperty(nameof(ValidateResult.IsOk));
+                        Debug.Assert(minLengthMethod != null, nameof(minLengthMethod) + " != null");
+                        Debug.Assert(isOkProperty != null, nameof(isOkProperty) + " != null");
+
+                        var namePropExp = Expression.Property(inputExp, propertyInfo);
+                        var nameNameExp = Expression.Constant(propertyInfo.Name);
+
+                        var requiredMethodExp = Expression.Call(minLengthMethod,
                             nameNameExp,
-                            namePropExp);
+                            namePropExp,
+                            Expression.Constant(minlengthAttributeLength));
                         var assignExp = Expression.Assign(resultExp, requiredMethodExp);
                         var resultIsOkPropertyExp = Expression.Property(resultExp, isOkProperty);
                         var conditionExp = Expression.IsFalse(resultIsOkPropertyExp);
@@ -177,20 +195,18 @@ namespace Newbe.ExpressionsTests
             return _func.Invoke(input);
         }
 
-        private static Expression<Func<string, string, ValidateResult>> CreateValidateStringRequiredExp()
+        public static ValidateResult ValidateStringRequired(string name, string value)
         {
-            return (name, value) =>
-                string.IsNullOrEmpty(value)
-                    ? ValidateResult.Error($"missing {name}")
-                    : ValidateResult.Ok();
+            return string.IsNullOrEmpty(value)
+                ? ValidateResult.Error($"missing {name}")
+                : ValidateResult.Ok();
         }
 
-        private static Expression<Func<string, string, ValidateResult>> CreateValidateStringMinLengthExp(int minLength)
+        public static ValidateResult ValidateStringMinLength(string name, string value, int minLength)
         {
-            return (name, value) =>
-                value.Length < minLength
-                    ? ValidateResult.Error($"Length of {name} should be great than {minLength}")
-                    : ValidateResult.Ok();
+            return value.Length < minLength
+                ? ValidateResult.Error($"Length of {name} should be great than {minLength}")
+                : ValidateResult.Ok();
         }
 
 

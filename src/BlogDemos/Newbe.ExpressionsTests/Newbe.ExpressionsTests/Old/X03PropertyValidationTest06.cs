@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 // ReSharper disable InvalidXmlDocComment
 
-namespace Newbe.ExpressionsTests
+namespace Newbe.ExpressionsTests.Old
 {
     /// <summary>
     /// Static Method to Expression
