@@ -68,12 +68,24 @@ namespace Newbe.ExpressionsTests
                 {
                     var input = new CreateClaptrapInput
                     {
-                        Name = "yueluo is the only one dalao",
+                        Name = "yueluo",
                         NickName = "newbe36524"
                     };
                     var (isOk, errorMessage) = Validate(input);
                     isOk.Should().BeTrue();
                     errorMessage.Should().BeNullOrEmpty();
+                }
+
+                // test 4
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo is the only one dalao",
+                        NickName = "newbe36524"
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be("Length of Name should be less than 10");
                 }
             }
         }

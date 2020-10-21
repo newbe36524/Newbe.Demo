@@ -18,6 +18,15 @@ namespace Newbe.ExpressionsTests.Impl
                     : ValidateResult.Ok();
         }
 
+        private static Expression<Func<string, string, ValidateResult>> CreateValidateStringMaxLengthExp(
+            int maxLength)
+        {
+            return (name, value) =>
+                !string.IsNullOrEmpty(value) && value.Length > maxLength
+                    ? ValidateResult.Error($"Length of {name} should be less than {maxLength}")
+                    : ValidateResult.Ok();
+        }
+
         protected override IEnumerable<Expression> CreateExpressionCore(CreatePropertyValidatorInput input)
         {
             var propertyInfo = input.PropertyInfo;
@@ -26,6 +35,13 @@ namespace Newbe.ExpressionsTests.Impl
             {
                 yield return CreateValidateExpression(input,
                     CreateValidateStringMinLengthExp(minlengthAttribute.Length));
+            }
+
+            var maxLengthAttribute = propertyInfo.GetCustomAttribute<MaxLengthAttribute>();
+            if (maxLengthAttribute != null)
+            {
+                yield return CreateValidateExpression(input,
+                    CreateValidateStringMaxLengthExp(maxLengthAttribute.Length));
             }
         }
     }
