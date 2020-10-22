@@ -89,6 +89,39 @@ namespace Newbe.ExpressionsTests.Old
             re.Should().Be(false);
         }
 
+        [Test]
+        public void Normal3()
+        {
+            // false && true
+            var binaryExpression = Expression.And(Expression.Constant(false), Expression.Constant(true));
+            // ()=> false && true
+            var expression = Expression.Lambda<Func<bool>>(binaryExpression);
+            var func = expression.Compile();
+            var re = func.Invoke();
+            re.Should().Be(false);
+        }
+
+        public static int Add(int a, int b) => a + b;
+
+        public static Expression<Func<int, int, int>> AddExp()
+        {
+            return (int a, int b) => a + b;
+        }
+
+        public static Expression<Func<int, int>> AddExp(int c)
+        {
+            var p = Expression.Parameter(typeof(int), "x");
+            var addExp = AddExp();
+            // ((a, b) => a + b)(x,b);
+            // ((a, b) => a + b)(x,c);
+            // ((a, c) => a + c)(x);
+            var body = Expression.Invoke(addExp, p, Expression.Constant(c));
+            var result = Expression.Lambda<Func<int, int>>(body, p);
+            return result;
+        }
+
+        public static int Add5(int a) => Add(a, 5);
+
         public static Expression<Func<Person, bool>> CreateRangeMinFilter(string propertyName, int minValue)
         {
             // Expression<Func<Person, bool>> filter = x => x.Level > level;
