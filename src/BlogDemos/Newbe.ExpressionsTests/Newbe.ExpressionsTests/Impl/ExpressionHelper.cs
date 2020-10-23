@@ -41,5 +41,33 @@ namespace Newbe.ExpressionsTests.Impl
                 ifThenExp);
             return re;
         }
+
+        public static Expression CreateCheckerExpression(Type valueType,
+            Expression checkBodyFunc,
+            Expression errorMessageFunc)
+        {
+            var nameExp = Expression.Parameter(typeof(string), "name");
+            var valueExp = Expression.Parameter(valueType, "value");
+
+            var checkBodyExp = Expression.Invoke(checkBodyFunc, valueExp);
+
+            var errorMessageExp = Expression.Invoke(errorMessageFunc, nameExp);
+            var errorResultExp = Expression.Call(typeof(ValidateResult),
+                nameof(ValidateResult.Error),
+                Array.Empty<Type>(),
+                errorMessageExp);
+            var okResultExp = Expression.Call(typeof(ValidateResult),
+                nameof(ValidateResult.Ok),
+                Array.Empty<Type>());
+
+            var resultExp = Expression.Variable(typeof(ValidateResult), "result");
+            var body1Exp = Expression.IfThenElse(checkBodyExp,
+                Expression.Assign(resultExp, errorResultExp),
+                Expression.Assign(resultExp, okResultExp));
+            var bodyExp = Expression.Block(new[] {resultExp}, body1Exp, resultExp);
+            var funcType = Expression.GetFuncType(typeof(string), valueType, typeof(ValidateResult));
+            var finalExp = Expression.Lambda(funcType, bodyExp, nameExp, valueExp);
+            return finalExp;
+        }
     }
 }

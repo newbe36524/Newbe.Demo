@@ -15,5 +15,6 @@ namespace Newbe.ExpressionsTests.Model
 
         public int[] Levels { get; set; } = {1};
         public List<string> List { get; set; } = new List<string> {"123"};
+        public IEnumerable<int> Items { get; set; } = new List<int>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,14 +11,6 @@ namespace Newbe.ExpressionsTests.Impl
 {
     public class EnumerablePropertyValidatorFactory : IPropertyValidatorFactory
     {
-        private static Expression<Func<string, IEnumerable<T>, ValidateResult>> CreateValidateIntRangeExp<T>()
-        {
-            return (name, value) =>
-                !value.Any()
-                    ? ValidateResult.Error($"{name} must contains more than one element")
-                    : ValidateResult.Ok();
-        }
-
         public IEnumerable<Expression> CreateExpression(CreatePropertyValidatorInput input)
         {
             var type = input.PropertyInfo.PropertyType;
@@ -34,13 +27,49 @@ namespace Newbe.ExpressionsTests.Impl
                 yield break;
             }
 
-            var method = typeof(EnumerablePropertyValidatorFactory)
-                .GetMethod(nameof(CreateValidateIntRangeExp), BindingFlags.Static | BindingFlags.NonPublic)
-                .MakeGenericMethod(item.GenericTypeArguments[0]);
-            var exp = method.Invoke(null, null);
-            var result = ExpressionHelper.CreateValidateExpression(input, (Expression) exp);
-
-            yield return result;
+            yield return CreateValidateAtLeastOneElementExpression(input, item);
+            yield return CreateValidateIsArrayOrListExpression(input, item);
         }
+
+        private static Expression CreateValidateIsArrayOrListExpression(
+            CreatePropertyValidatorInput input,
+            Type enumerableInterfaceType)
+        {
+            var valueExp = Expression.Parameter(enumerableInterfaceType, "value");
+            var body = Expression.TypeIs(valueExp, typeof(ICollection));
+            var bodyExp = Expression.IsFalse(body);
+
+            var funcType = Expression.GetFuncType(enumerableInterfaceType, typeof(bool));
+            var finalExp = Expression.Lambda(funcType, bodyExp, valueExp);
+
+            return ExpressionHelper.CreateValidateExpression(input,
+                ExpressionHelper.CreateCheckerExpression(enumerableInterfaceType, finalExp,
+                    ArrayOrListErrorMessageFunc));
+        }
+
+
+        private static Expression CreateValidateAtLeastOneElementExpression(
+            CreatePropertyValidatorInput input,
+            Type item)
+        {
+            var valueExp = Expression.Parameter(item, "value");
+            var anyExp = Expression.Call(typeof(Enumerable), nameof(Enumerable.Any), new[]
+            {
+                item.GenericTypeArguments[0]
+            }, valueExp);
+            var bodyExp = Expression.IsFalse(anyExp);
+
+            var funcType = Expression.GetFuncType(item, typeof(bool));
+            var finalExp = Expression.Lambda(funcType, bodyExp, valueExp);
+
+            return ExpressionHelper.CreateValidateExpression(input,
+                ExpressionHelper.CreateCheckerExpression(item, finalExp, AtLeastElementErrorMessageFunc));
+        }
+
+        private static readonly Expression<Func<string, string>> ArrayOrListErrorMessageFunc =
+            name => $"{name} must be type of Array or List";
+
+        private static readonly Expression<Func<string, string>> AtLeastElementErrorMessageFunc =
+            name => $"{name} must contains more than one element";
     }
 }

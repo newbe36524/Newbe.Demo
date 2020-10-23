@@ -22,10 +22,5 @@ namespace Newbe.ExpressionsTests.Impl
         }
 
         protected abstract IEnumerable<Expression> CreateExpressionCore(CreatePropertyValidatorInput input);
-
-        protected Expression CreateValidateExpression(
-            CreatePropertyValidatorInput input,
-            Expression<Func<string, TValue, ValidateResult>> validateFuncExpression)
-            => ExpressionHelper.CreateValidateExpression(input, validateFuncExpression);
     }
 }
