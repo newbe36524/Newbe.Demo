@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using Autofac;
 using FluentAssertions;
 using Newbe.ExpressionsTests.Interfaces;
@@ -114,7 +115,7 @@ namespace Newbe.ExpressionsTests
                     };
                     var (isOk, errorMessage) = Validate(input);
                     isOk.Should().BeFalse();
-                    errorMessage.Should().Be("Levels must contains more than one element");
+                    errorMessage.Should().Be("Levels must contain more than one element");
                 }
 
                 // test 7
@@ -127,7 +128,7 @@ namespace Newbe.ExpressionsTests
                     };
                     var (isOk, errorMessage) = Validate(input);
                     isOk.Should().BeFalse();
-                    errorMessage.Should().Be("List must contains more than one element");
+                    errorMessage.Should().Be("List must contain more than one element");
                 }
 
                 // test 8
@@ -142,6 +143,32 @@ namespace Newbe.ExpressionsTests
                     isOk.Should().BeFalse();
                     errorMessage.Should().Be("Items must be type of Array or List");
                 }
+
+                // test 9
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo",
+                        NickName = "newbe36524",
+                        Size = null
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be("Size must be not null");
+                }
+
+                // test 10
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo",
+                        NickName = "newbe36524",
+                        ActionType = (ActionType) 666,
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be("ActionType must be 1,2,3 but found 666.");
+                }
             }
         }
 
@@ -152,6 +179,65 @@ namespace Newbe.ExpressionsTests
             (student is ICollection).Should().BeFalse();
             (new List<int>() is ICollection).Should().BeTrue();
             (Array.Empty<int>() is ICollection).Should().BeTrue();
+        }
+        
+        [Test]
+        public void TestEnumEqual()
+        {
+            (typeof(Enum) == typeof(ActionType)).Should().BeFalse();
+            typeof(ActionType).BaseType.Should().Be(typeof(Enum));
+        }
+
+        [Test]
+        public void TestEnum()
+        {
+            var values = Enum.GetValues(typeof(BoolEnum))
+                .Cast<BoolEnum>()
+                .ToArray();
+            var b = BoolEnum.Yes;
+            values.Contains(b).Should().BeTrue();
+            b.Should().Be(BoolEnum.Yes);
+            b = (BoolEnum) 123;
+            b.Should().Be(123);
+            values.Contains(b).Should().BeFalse();
+        }
+
+        public enum BoolEnum
+        {
+            Yes = 1,
+            No = 2
+        }
+
+        [Test]
+        public void TestInt()
+        {
+            int? age = null;
+            age.Should().BeNull();
+        }
+
+
+        [Test]
+        public void TestEnumerable()
+        {
+            CheckType(typeof(IEnumerable<int>));
+            CheckType(typeof(List<int>));
+            CheckType(typeof(int[]));
+
+            void CheckType(Type type)
+            {
+                var allInterfaces = GetAllInterfaceIncludingSelf();
+                allInterfaces.Any(x => x.Name == "IEnumerable`1").Should().Be(true);
+
+                IEnumerable<Type> GetAllInterfaceIncludingSelf()
+                {
+                    foreach (var i in type.GetInterfaces())
+                    {
+                        yield return i;
+                    }
+
+                    yield return type;
+                }
+            }
         }
 
         public ValidateResult Validate(CreateClaptrapInput input)

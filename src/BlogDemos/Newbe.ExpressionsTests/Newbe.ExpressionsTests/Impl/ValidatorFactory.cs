@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using AgileObjects.ReadableExpressions;
 using Newbe.ExpressionsTests.Interfaces;
 using Newbe.ExpressionsTests.Model;
 
@@ -22,6 +23,8 @@ namespace Newbe.ExpressionsTests.Impl
         private Func<object, ValidateResult> CreateValidator(Type type)
         {
             var finalExpression = CreateCore();
+            var readableString = finalExpression.ToReadableString();
+            Console.WriteLine(readableString);
             return finalExpression.Compile();
 
             Expression<Func<object, ValidateResult>> CreateCore()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Newbe.ExpressionsTests.Model
@@ -15,6 +16,21 @@ namespace Newbe.ExpressionsTests.Model
 
         public int[] Levels { get; set; } = {1};
         public List<string> List { get; set; } = new List<string> {"123"};
-        public IEnumerable<int> Items { get; set; } = new List<int>();
+        public IEnumerable<int> Items { get; set; } = new List<int> {123};
+
+        [Required] public int? Size { get; set; } = 1;
+
+        [EnumRange] public ActionType ActionType { get; set; } = ActionType.Add;
+    }
+
+    public enum ActionType
+    {
+        Add = 1,
+        Update = 2,
+        Delete = 3,
+    }
+
+    public class EnumRangeAttribute : Attribute
+    {
     }
 }

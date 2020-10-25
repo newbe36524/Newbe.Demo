@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.1" />
         <PackageReference Include="Autofac" Version="6.0.0" />
         <PackageReference Include="FluentAssertions" Version="5.10.3" />
         <PackageReference Include="nunit" Version="3.12.0" />

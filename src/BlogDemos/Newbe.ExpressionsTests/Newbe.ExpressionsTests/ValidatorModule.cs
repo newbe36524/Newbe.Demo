@@ -13,6 +13,12 @@ namespace Newbe.ExpressionsTests
                 .As<IValidatorFactory>()
                 .SingleInstance();
 
+            builder.RegisterType<EnumRangePropertyValidatorFactory>()
+                .As<IPropertyValidatorFactory>()
+                .SingleInstance();
+            builder.RegisterType<NullableIntPropertyValidatorFactory>()
+                .As<IPropertyValidatorFactory>()
+                .SingleInstance();
             builder.RegisterType<EnumerablePropertyValidatorFactory>()
                 .As<IPropertyValidatorFactory>()
                 .SingleInstance();

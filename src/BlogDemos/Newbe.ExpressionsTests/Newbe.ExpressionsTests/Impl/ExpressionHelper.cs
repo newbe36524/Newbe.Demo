@@ -51,7 +51,10 @@ namespace Newbe.ExpressionsTests.Impl
 
             var checkBodyExp = Expression.Invoke(checkBodyFunc, valueExp);
 
-            var errorMessageExp = Expression.Invoke(errorMessageFunc, nameExp);
+            var errorMessageExp =
+                errorMessageFunc is Expression<Func<string, string>>
+                    ? Expression.Invoke(errorMessageFunc, nameExp)
+                    : Expression.Invoke(errorMessageFunc, nameExp, valueExp);
             var errorResultExp = Expression.Call(typeof(ValidateResult),
                 nameof(ValidateResult.Error),
                 Array.Empty<Type>(),

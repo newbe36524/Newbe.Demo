@@ -19,8 +19,10 @@ namespace Newbe.ExpressionsTests.Impl
                 yield break;
             }
 
-            var item = type
-                .GetInterfaces()
+            var interfaces = type
+                .GetInterfaces();
+            var allInterface = interfaces.Concat(new[] {type});
+            var item = allInterface
                 .FirstOrDefault(x => x.Name == "IEnumerable`1");
             if (item == null)
             {
@@ -70,6 +72,6 @@ namespace Newbe.ExpressionsTests.Impl
             name => $"{name} must be type of Array or List";
 
         private static readonly Expression<Func<string, string>> AtLeastElementErrorMessageFunc =
-            name => $"{name} must contains more than one element";
+            name => $"{name} must contain more than one element";
     }
 }
