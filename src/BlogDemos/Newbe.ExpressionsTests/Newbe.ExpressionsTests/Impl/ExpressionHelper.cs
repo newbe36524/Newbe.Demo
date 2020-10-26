@@ -28,7 +28,9 @@ namespace Newbe.ExpressionsTests.Impl
             var requiredMethodExp = Expression.Invoke(
                 validateFuncExpression,
                 nameExp,
-                propExp);
+                propExp,
+                // TODO change type
+                Expression.Convert(input.InputExpression, typeof(CreateClaptrapInput)));
             var assignExp = Expression.Assign(input.ResultExpression, requiredMethodExp);
             var resultIsOkPropertyExp = Expression.Property(input.ResultExpression, isOkProperty);
             var conditionExp = Expression.IsFalse(resultIsOkPropertyExp);
@@ -43,18 +45,19 @@ namespace Newbe.ExpressionsTests.Impl
         }
 
         public static Expression CreateCheckerExpression(Type valueType,
-            Expression checkBodyFunc,
-            Expression errorMessageFunc)
+            Func<Expression, Expression> checkBodyFuncFactory,
+            Func<Expression, Expression> errorMessageFuncFactory)
         {
             var nameExp = Expression.Parameter(typeof(string), "name");
             var valueExp = Expression.Parameter(valueType, "value");
-
+            // TODO change type
+            var inputType = typeof(CreateClaptrapInput);
+            var inputExp = Expression.Parameter(inputType, "input");
+            var checkBodyFunc = checkBodyFuncFactory.Invoke(inputExp);
             var checkBodyExp = Expression.Invoke(checkBodyFunc, valueExp);
 
-            var errorMessageExp =
-                errorMessageFunc is Expression<Func<string, string>>
-                    ? Expression.Invoke(errorMessageFunc, nameExp)
-                    : Expression.Invoke(errorMessageFunc, nameExp, valueExp);
+            var errorMessageFunc = errorMessageFuncFactory.Invoke(inputExp);
+            var errorMessageExp = Expression.Invoke(errorMessageFunc, nameExp);
             var errorResultExp = Expression.Call(typeof(ValidateResult),
                 nameof(ValidateResult.Error),
                 Array.Empty<Type>(),
@@ -68,9 +71,23 @@ namespace Newbe.ExpressionsTests.Impl
                 Expression.Assign(resultExp, errorResultExp),
                 Expression.Assign(resultExp, okResultExp));
             var bodyExp = Expression.Block(new[] {resultExp}, body1Exp, resultExp);
-            var funcType = Expression.GetFuncType(typeof(string), valueType, typeof(ValidateResult));
-            var finalExp = Expression.Lambda(funcType, bodyExp, nameExp, valueExp);
+            var funcType = Expression.GetFuncType(typeof(string), valueType, inputType, typeof(ValidateResult));
+            var finalExp = Expression.Lambda(funcType, bodyExp, nameExp, valueExp, inputExp);
             return finalExp;
         }
+
+        public static Expression CreateCheckerExpression(Type valueType,
+            Expression checkBodyFunc,
+            Expression errorMessageFunc)
+            => CreateCheckerExpression(valueType,
+                inputExp => checkBodyFunc,
+                inputExp => errorMessageFunc);
+
+        public static Expression CreateCheckerExpression(Type valueType,
+            Expression checkBodyFunc,
+            Func<Expression, Expression> errorMessageFuncFactory)
+            => CreateCheckerExpression(valueType,
+                inputExp => checkBodyFunc,
+                errorMessageFuncFactory);
     }
 }

@@ -28,23 +28,25 @@ namespace Newbe.ExpressionsTests.Impl
 
             var checkbox = CreateValidateExpression(type, enumValues);
 
-            var nameExp = Expression.Parameter(typeof(string), "name");
-            var valueExp = Expression.Parameter(type, "value");
+            Expression ErrorMessageFuncFactory(Expression inputExp)
+            {
+                var nameExp = Expression.Parameter(typeof(string), "name");
 
-            var tempExp = Expression.Constant("{0} must be {1} but found {2}.");
-            var enumRangeString = string.Join(",", enumValues.Cast<Enum>().Select(x => x.ToString("D")));
-            var bodyExp = Expression.Call(typeof(string),
-                nameof(string.Format),
-                Array.Empty<Type>(),
-                tempExp,
-                Expression.Convert(nameExp, typeof(object)),
-                Expression.Convert(Expression.Constant(enumRangeString), typeof(object)),
-                Expression.Convert(valueExp, typeof(object)));
-            var funcType = Expression.GetFuncType(typeof(string), type, typeof(string));
-            var errorMessageFunc = Expression.Lambda(funcType, bodyExp, nameExp, valueExp);
+                var tempExp = Expression.Constant("{0} must be {1} but found {2}.");
+                var enumRangeString = string.Join(",", enumValues.Cast<Enum>().Select(x => x.ToString("D")));
+                var bodyExp = Expression.Call(typeof(string),
+                    nameof(string.Format),
+                    Array.Empty<Type>(),
+                    tempExp,
+                    Expression.Convert(nameExp, typeof(object)),
+                    Expression.Convert(Expression.Constant(enumRangeString), typeof(object)),
+                    Expression.Convert(Expression.Property(inputExp, input.PropertyInfo), typeof(object)));
+                var errorMessageFunc = Expression.Lambda<Func<string, string>>(bodyExp, nameExp);
+                return errorMessageFunc;
+            }
 
             yield return ExpressionHelper.CreateValidateExpression(input,
-                ExpressionHelper.CreateCheckerExpression(type, checkbox, errorMessageFunc));
+                ExpressionHelper.CreateCheckerExpression(type, checkbox, ErrorMessageFuncFactory));
         }
 
         private static Expression CreateValidateExpression(Type type, List<object> enumValues)

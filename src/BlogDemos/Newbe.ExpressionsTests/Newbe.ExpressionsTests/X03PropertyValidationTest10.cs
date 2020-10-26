@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using Autofac;
 using FluentAssertions;
 using Newbe.ExpressionsTests.Interfaces;
@@ -169,6 +168,19 @@ namespace Newbe.ExpressionsTests
                     isOk.Should().BeFalse();
                     errorMessage.Should().Be("ActionType must be 1,2,3 but found 666.");
                 }
+
+                // test 11
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo",
+                        NickName = "newbe36524",
+                        Height = -1
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be("Value of Height must be greater than Age. But found: Height: -1, Age: 0");
+                }
             }
         }
 
@@ -180,7 +192,7 @@ namespace Newbe.ExpressionsTests
             (new List<int>() is ICollection).Should().BeTrue();
             (Array.Empty<int>() is ICollection).Should().BeTrue();
         }
-        
+
         [Test]
         public void TestEnumEqual()
         {
