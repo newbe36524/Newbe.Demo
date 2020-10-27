@@ -181,6 +181,20 @@ namespace Newbe.ExpressionsTests
                     isOk.Should().BeFalse();
                     errorMessage.Should().Be("Value of Height must be greater than Age. But found: Height: -1, Age: 0");
                 }
+                
+                // test 12
+                {
+                    var input = new CreateClaptrapInput
+                    {
+                        Name = "yueluo",
+                        NickName = "newbe36524",
+                        NewPwd = "666",
+                        OldPwd = "777"
+                    };
+                    var (isOk, errorMessage) = Validate(input);
+                    isOk.Should().BeFalse();
+                    errorMessage.Should().Be("NewPwd must be the same as OldPwd");
+                }
             }
         }
 

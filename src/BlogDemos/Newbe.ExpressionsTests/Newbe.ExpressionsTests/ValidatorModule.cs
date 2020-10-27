@@ -13,6 +13,9 @@ namespace Newbe.ExpressionsTests
                 .As<IValidatorFactory>()
                 .SingleInstance();
             
+            builder.RegisterType<EqualToPropertyValidatorFactory>()
+                .As<IPropertyValidatorFactory>()
+                .SingleInstance();
             builder.RegisterType<GreatThanPropertyValidatorFactory>()
                 .As<IPropertyValidatorFactory>()
                 .SingleInstance();

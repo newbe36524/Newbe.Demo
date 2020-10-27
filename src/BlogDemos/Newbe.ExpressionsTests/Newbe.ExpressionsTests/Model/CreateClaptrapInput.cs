@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection;
 
 namespace Newbe.ExpressionsTests.Model
 {
+    //typeof(CreateClaptrapInput).Property(x=>x.Name).Required().CreateValidator();
     public class CreateClaptrapInput
     {
         [Required]
@@ -24,6 +24,17 @@ namespace Newbe.ExpressionsTests.Model
         [GreatThan(Name = nameof(Age))] public int Height { get; set; } = 1;
 
         [EnumRange] public ActionType ActionType { get; set; } = ActionType.Add;
+
+        [EqualTo(Name = nameof(OldPwd))]
+        public string NewPwd { get; set; }
+        public string OldPwd { get; set; }
+
+        public CreateClaptrapInput InnerInput { get; set; }
+    }
+
+    public class EqualToAttribute : Attribute
+    {
+        public string Name { get; set; }
     }
 
     public enum ActionType
