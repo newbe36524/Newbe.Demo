@@ -1,8 +1,8 @@
 ﻿using Autofac;
-using Newbe.ExpressionsTests.Impl;
-using Newbe.ExpressionsTests.Interfaces;
+using Newbe.ExpressionsTests.Old.X10.Impl;
+using Newbe.ExpressionsTests.Old.X10.Interfaces;
 
-namespace Newbe.ExpressionsTests
+namespace Newbe.ExpressionsTests.Old.X10
 {
     public class ValidatorModule : Module
     {

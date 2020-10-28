@@ -1,7 +1,7 @@
 ﻿using System;
-using Newbe.ExpressionsTests.Model;
+using Newbe.ExpressionsTests.Old.X10.Model;
 
-namespace Newbe.ExpressionsTests.Interfaces
+namespace Newbe.ExpressionsTests.Old.X10.Interfaces
 {
     public interface IValidatorFactory
     {

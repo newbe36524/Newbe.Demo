@@ -1,4 +1,4 @@
-﻿namespace Newbe.ExpressionsTests.Model
+﻿namespace Newbe.ExpressionsTests.Old.X10.Model
 {
     public struct ValidateResult
     {

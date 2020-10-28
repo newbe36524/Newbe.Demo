@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Newbe.ExpressionsTests.Model
+namespace Newbe.ExpressionsTests.Old.X10.Model
 {
     //typeof(CreateClaptrapInput).Property(x=>x.Name).Required().CreateValidator();
     public class CreateClaptrapInput

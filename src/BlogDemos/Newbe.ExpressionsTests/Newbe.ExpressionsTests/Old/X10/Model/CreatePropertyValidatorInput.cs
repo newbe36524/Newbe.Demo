@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Newbe.ExpressionsTests.Model
+namespace Newbe.ExpressionsTests.Old.X10.Model
 {
     public class CreatePropertyValidatorInput
     {

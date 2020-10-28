@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using Newbe.ExpressionsTests.Model;
+using Newbe.ExpressionsTests.Old.X10.Model;
 
-namespace Newbe.ExpressionsTests.Impl
+namespace Newbe.ExpressionsTests.Old.X10.Impl
 {
     public static class ExpressionHelper
     {

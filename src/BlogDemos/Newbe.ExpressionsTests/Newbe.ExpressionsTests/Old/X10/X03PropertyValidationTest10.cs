@@ -5,13 +5,13 @@ using System.Diagnostics;
 using System.Linq;
 using Autofac;
 using FluentAssertions;
-using Newbe.ExpressionsTests.Interfaces;
-using Newbe.ExpressionsTests.Model;
+using Newbe.ExpressionsTests.Old.X10.Interfaces;
+using Newbe.ExpressionsTests.Old.X10.Model;
 using NUnit.Framework;
 
 // ReSharper disable InvalidXmlDocComment
 
-namespace Newbe.ExpressionsTests
+namespace Newbe.ExpressionsTests.Old.X10
 {
     /// <summary>
     /// Final

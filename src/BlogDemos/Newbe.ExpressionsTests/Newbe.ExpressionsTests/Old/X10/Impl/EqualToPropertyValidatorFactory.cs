@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Newbe.ExpressionsTests.Model;
+using Newbe.ExpressionsTests.Old.X10.Model;
 
-namespace Newbe.ExpressionsTests.Impl
+namespace Newbe.ExpressionsTests.Old.X10.Impl
 {
     public class EqualToPropertyValidatorFactory : PropertyValidatorFactoryBase<string>
     {
