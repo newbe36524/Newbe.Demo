@@ -6,6 +6,7 @@ namespace Newbe.ExpressionsTests.Impl
     public class StudentBll : IStudentBll
     {
         private readonly IStudentDal _studentDal;
+        private readonly IMyLogger _myLogger;
 
         /**
              * 通过构造函数传入一个 IStudentDal 这种方式称为“构造函数注入”
@@ -13,9 +14,11 @@ namespace Newbe.ExpressionsTests.Impl
              * 只要 IStudentDal 接口的定义不修改，该类就不需要修改，实现了DAL与BLL的解耦
              */
         public StudentBll(
-            IStudentDal studentDal)
+            IStudentDal studentDal,
+            IMyLogger myLogger)
         {
             _studentDal = studentDal;
+            _myLogger = myLogger;
         }
 
         public IEnumerable<Student> GetStudents()

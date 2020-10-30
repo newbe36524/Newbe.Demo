@@ -1,153 +1,170 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using Newbe.ExpressionsTests.Impl;
 using Newbe.ExpressionsTests.Interfaces;
 using NUnit.Framework;
 
 namespace Newbe.ExpressionsTests
 {
-    public interface IObjectFactory
-    {
-        object Resolve(Type resolvingType);
-    }
-
-    public static class ObjectFactoryExtensions
-    {
-        public static T Resolve<T>(this IObjectFactory factory)
-        {
-            var obj = factory.Resolve(typeof(T));
-            return (T) obj;
-        }
-    }
-
-    public interface IObjectFactoryHandler
-    {
-        bool CanHandle(Type waitingType);
-        object Resolve(Type waitingType);
-    }
-
-    public interface IObjectFactoryRegister
-    {
-        void Register(Type implType, Type interfaceType);
-    }
-
-    public class SimpleObjectFactoryHandler : IObjectFactoryRegister, IObjectFactoryHandler
-    {
-        public Dictionary<Type, Type> TypeMapping { get; set; } = new Dictionary<Type, Type>();
-        public IObjectFactory ObjectFactory { get; set; }
-
-        public bool CanHandle(Type waitingType)
-        {
-            return TypeMapping.ContainsKey(waitingType);
-        }
-
-        public object Resolve(Type waitingType)
-        {
-            var implType = TypeMapping[waitingType];
-            var constructorInfo = implType.GetConstructors().FirstOrDefault();
-            Expression newExp;
-            if (constructorInfo == null)
-            {
-                newExp = Expression.New(implType);
-            }
-            else
-            {
-                var parameterInfos = constructorInfo.GetParameters();
-                var factoryExp = Expression.Constant(ObjectFactory);
-
-                List<Expression> list = new List<Expression>();
-                foreach (var parameterInfo in parameterInfos)
-                {
-                    var pExp = Expression.Call(typeof(ObjectFactoryExtensions),
-                        nameof(ObjectFactoryExtensions.Resolve),
-                        new[] {parameterInfo.ParameterType},
-                        factoryExp);
-                    list.Add(pExp);
-                }
-
-                newExp = Expression.New(constructorInfo, list);
-            }
-
-            var finalExp = Expression.Lambda<Func<object>>(newExp);
-            var func = finalExp.Compile();
-            var re = func.Invoke();
-            return re;
-        }
-
-        public void Register(Type implType, Type interfaceType)
-        {
-            TypeMapping[interfaceType] = implType;
-        }
-    }
-
-
-    public interface IMyContainerBuilder
-    {
-        IObjectFactory Build();
-    }
-
-    public class MyContainerBuilder : IMyContainerBuilder
-    {
-        private readonly Dictionary<Type, Type> _dictionary = new Dictionary<Type, Type>();
-
-        public void Register<TImpl, TInterface>()
-        {
-            _dictionary[typeof(TInterface)] = typeof(TImpl);
-        }
-
-        public IObjectFactory Build()
-        {
-            var simpleObjectFactoryHandler = new SimpleObjectFactoryHandler {TypeMapping = _dictionary};
-            var objectFactory = new ObjectFactory(new[]
-            {
-                simpleObjectFactoryHandler
-            });
-            simpleObjectFactoryHandler.ObjectFactory = objectFactory;
-            return objectFactory;
-        }
-    }
-
-    public class ObjectFactory : IObjectFactory
-    {
-        private readonly IEnumerable<IObjectFactoryHandler> _handlers;
-
-        public ObjectFactory(IEnumerable<IObjectFactoryHandler> handlers)
-        {
-            _handlers = handlers;
-        }
-
-        public object Resolve(Type resolvingType)
-        {
-            foreach (var handler in _handlers)
-            {
-                var canHandle = handler.CanHandle(resolvingType);
-                if (canHandle)
-                {
-                    var obj = handler.Resolve(resolvingType);
-                    return obj;
-                }
-            }
-
-            throw new MissingObjectException(resolvingType);
-        }
-    }
-
     public class FactoryTest
     {
+        public class TreeNode
+        {
+            public Type InterfaceType { get; set; }
+            public Type ImplType { get; set; }
+            public TreeNode Parent { get; set; }
+            public List<TreeNode> Children { get; set; }
+        }
+
+        [Test]
+        public void CreateTreeNodeTest()
+        {
+            var dic = new Dictionary<Type, Type>
+            {
+                {typeof(IStudentBll), typeof(StudentBll)},
+                {typeof(IStudentDal), typeof(StudentDal1)},
+            };
+
+            // a -> b,c
+            // b ->  
+            // c -> d
+            // d ->
+
+            // b <- a
+            // c <- a
+            // d <- c
+
+            var dependDic = dic.ToDictionary(x => x.Value, x =>
+            {
+                var constructorInfo = x.Value.GetConstructors().FirstOrDefault();
+                if (constructorInfo == null)
+                {
+                    return Array.Empty<Type>();
+                }
+
+                return constructorInfo.GetParameters()
+                    .Select(a => a.ParameterType)
+                    .ToArray();
+            });
+
+            var newDic = new Dictionary<Type, List<Type>>();
+
+            foreach (var (implType, dependItems) in dependDic)
+            {
+                foreach (var dependItem in dependItems)
+                {
+                    if (!newDic.TryGetValue(dependItem, out var list))
+                    {
+                        list = new List<Type>();
+                    }
+
+                    list.Add(implType);
+                    newDic[dependItem] = list;
+                }
+            }
+
+            var nodeDic = dic
+                .Select(x => new TreeNode
+                {
+                    InterfaceType = x.Key,
+                    ImplType = x.Value,
+                    Children = new List<TreeNode>()
+                })
+                .ToDictionary(x => x.ImplType);
+
+            foreach (var node in nodeDic.Values)
+            {
+                if (newDic.TryGetValue(node.InterfaceType, out var list))
+                {
+                    foreach (var implType in list)
+                    {
+                        var parent = nodeDic[implType];
+                        node.Parent = parent;
+                        parent.Children.Add(node);
+                    }
+                }
+            }
+
+            Console.WriteLine(nodeDic);
+        }
+
+
+        [Test]
+        public void DpTest()
+        {
+            var root = new TreeNode
+            {
+                InterfaceType = typeof(string),
+                Children = new List<TreeNode>
+                {
+                    new TreeNode
+                    {
+                        InterfaceType = typeof(int),
+                        Children = new List<TreeNode>
+                        {
+                            new TreeNode
+                            {
+                                InterfaceType = typeof(short)
+                            }
+                        }
+                    },
+                    new TreeNode
+                    {
+                        InterfaceType = typeof(long),
+                        Children = new List<TreeNode>
+                        {
+                            new TreeNode
+                            {
+                                InterfaceType = typeof(double)
+                            }
+                        }
+                    }
+                }
+            };
+
+            var stack = new Stack<TreeNode>();
+            var set = new HashSet<TreeNode>();
+            stack.Push(root);
+            while (stack.TryPeek(out var node))
+            {
+                if (!set.Contains(node))
+                {
+                    set.Add(node);
+                    if (node.Children != null)
+                    {
+                        foreach (var child in node.Children)
+                        {
+                            stack.Push(child);
+                            set.Add(root);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(node.InterfaceType.Name);
+                        stack.Pop();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(node.InterfaceType.Name);
+                    stack.Pop();
+                }
+            }
+        }
+
         [Test]
         public void Run()
         {
             Console.WriteLine($"开始运行{nameof(FactoryTest)}");
             // 使用 StudentDal1
-            var builder = new MyContainerBuilder();
-            builder.Register<StudentBll, IStudentBll>();
-            builder.Register<StudentDal1, IStudentDal>();
+            var builder1 = new MyContainerBuilder();
+            builder1.Register<StudentDal1, IStudentDal>();
+            builder1.Register<StudentBll, IStudentBll>();
+            builder1.Register<MyLogger, IMyLogger>();
 
-            var factory = builder.Build();
-            var studentBll = factory.Resolve<IStudentBll>();
+            var factory1 = builder1.Build();
+            var studentBll = factory1.Resolve<IStudentBll>();
             var students = studentBll.GetStudents();
             foreach (var student in students)
             {
@@ -155,7 +172,13 @@ namespace Newbe.ExpressionsTests
             }
 
             // 使用 StudentDal2
-            studentBll = new StudentBll(new StudentDal2());
+            var builder2 = new MyContainerBuilder();
+            builder2.Register<MyLogger, IMyLogger>();
+            builder2.Register<StudentBll, IStudentBll>();
+            builder2.Register<StudentDal2, IStudentDal>();
+            var factory = builder2.Build();
+            studentBll = factory.Resolve<IStudentBll>();
+
             students = studentBll.GetStudents();
             foreach (var student in students)
             {

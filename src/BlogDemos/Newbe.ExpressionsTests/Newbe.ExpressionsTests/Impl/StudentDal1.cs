@@ -5,6 +5,14 @@ namespace Newbe.ExpressionsTests.Impl
 {
     public class StudentDal1 : IStudentDal
     {
+        private readonly IMyLogger _myLogger;
+
+        public StudentDal1(
+            IMyLogger myLogger)
+        {
+            _myLogger = myLogger;
+        }
+
         private readonly IList<Student> _studentList = new List<Student>
         {
             new Student
