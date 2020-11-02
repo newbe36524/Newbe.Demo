@@ -5,11 +5,18 @@ namespace Newbe.ExpressionsTests
 {
     public class MyContainerBuilder : IMyContainerBuilder
     {
-        private readonly Dictionary<Type, Type> _dictionary = new Dictionary<Type, Type>();
+        private readonly Dictionary<Type, HashSet<Type>> _dictionary = new Dictionary<Type, HashSet<Type>>();
 
         public void Register<TImpl, TInterface>()
         {
-            _dictionary[typeof(TInterface)] = typeof(TImpl);
+            var interfaceType = typeof(TInterface);
+            if (!_dictionary.TryGetValue(interfaceType, out var set))
+            {
+                set = new HashSet<Type>();
+            }
+
+            set.Add(typeof(TImpl));
+            _dictionary[interfaceType] = set;
         }
 
         public IObjectFactory Build()
@@ -19,7 +26,6 @@ namespace Newbe.ExpressionsTests
             {
                 simpleObjectFactoryHandler
             });
-            simpleObjectFactoryHandler.ObjectFactory = objectFactory;
             simpleObjectFactoryHandler.InitFunc();
             return objectFactory;
         }

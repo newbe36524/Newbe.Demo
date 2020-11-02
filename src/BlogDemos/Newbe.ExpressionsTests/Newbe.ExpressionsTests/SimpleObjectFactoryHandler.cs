@@ -11,83 +11,24 @@ namespace Newbe.ExpressionsTests
         /// <summary>
         ///  interfaceType: implType
         /// </summary>
-        public Dictionary<Type, Type> TypeMapping { get; set; } = new Dictionary<Type, Type>();
+        public Dictionary<Type, HashSet<Type>> TypeMapping { get; set; } = new Dictionary<Type, HashSet<Type>>();
 
         /// <summary>
         ///  interfaceType: Func
         /// </summary>
-        private readonly Dictionary<Type, Func<object>> _factories = new Dictionary<Type, Func<object>>();
+        private readonly Dictionary<Type, List<Func<object>>> _factories
+            = new Dictionary<Type, List<Func<object>>>();
 
         /// <summary>
         ///  interfaceType: newExp
         /// </summary>
-        private readonly Dictionary<Type, Expression> _finalExp = new Dictionary<Type, Expression>();
-
-        public IObjectFactory ObjectFactory { get; set; }
-
-        public class TreeNode
-        {
-            public Type InterfaceType { get; set; }
-            public Type ImplType { get; set; }
-            public TreeNode Parent { get; set; }
-            public List<TreeNode> Children { get; set; }
-        }
+        private readonly Dictionary<Type, List<Expression>> _instanceExpressions
+            = new Dictionary<Type, List<Expression>>();
 
         private TreeNode[] CreateTree()
         {
-            var dic = TypeMapping;
-            var dependDic = dic.ToDictionary(x => x.Value, x =>
-            {
-                var constructorInfo = x.Value.GetConstructors().FirstOrDefault();
-                if (constructorInfo == null)
-                {
-                    return Array.Empty<Type>();
-                }
-
-                return constructorInfo.GetParameters()
-                    .Select(a => a.ParameterType)
-                    .ToArray();
-            });
-
-            var newDic = new Dictionary<Type, List<Type>>();
-
-            foreach (var (implType, dependItems) in dependDic)
-            {
-                foreach (var dependItem in dependItems)
-                {
-                    if (!newDic.TryGetValue(dependItem, out var list))
-                    {
-                        list = new List<Type>();
-                    }
-
-                    list.Add(implType);
-                    newDic[dependItem] = list;
-                }
-            }
-
-            var nodeDic = dic
-                .Select(x => new TreeNode
-                {
-                    InterfaceType = x.Key,
-                    ImplType = x.Value,
-                    Children = new List<TreeNode>()
-                })
-                .ToDictionary(x => x.ImplType);
-
-            foreach (var node in nodeDic.Values)
-            {
-                if (newDic.TryGetValue(node.InterfaceType, out var list))
-                {
-                    foreach (var implType in list)
-                    {
-                        var parent = nodeDic[implType];
-                        node.Parent = parent;
-                        parent.Children.Add(node);
-                    }
-                }
-            }
-
-            var roots = nodeDic.Values.Where(x => x.Parent == null);
+            var treeNodes = TreeHelper.CreateTree(TypeMapping);
+            var roots = treeNodes.Where(x => x.Parent == null);
             return roots.ToArray();
         }
 
@@ -128,14 +69,24 @@ namespace Newbe.ExpressionsTests
 
             void CreateData(TreeNode node)
             {
-                if (!_factories.ContainsKey(node.InterfaceType))
-                {
-                    var newExp = CreateNewExp(node.InterfaceType, node.ImplType);
-                    _factories[node.InterfaceType] = CreateFactory(newExp);
-                    _finalExp[node.InterfaceType] = newExp;
-                    Console.WriteLine(newExp.ToReadableString());
-                }
+                var nodeInterfaceType = node.InterfaceType;
+                var newExp = CreateNewExp(nodeInterfaceType, node.ImplType);
+                CreateOrAddItem(_factories, nodeInterfaceType, CreateFactory(newExp));
+                CreateOrAddItem(_instanceExpressions, nodeInterfaceType, newExp);
+
+                Console.WriteLine(newExp.ToReadableString());
             }
+        }
+
+        public static void CreateOrAddItem<T>(Dictionary<Type, List<T>> dic, Type key, T item)
+        {
+            if (!dic.TryGetValue(key, out var list))
+            {
+                list = new List<T>();
+            }
+
+            list.Add(item);
+            dic[key] = list;
         }
 
         public bool CanHandle(Type waitingType)
@@ -145,7 +96,7 @@ namespace Newbe.ExpressionsTests
 
         public object Resolve(Type waitingType)
         {
-            var factory = _factories[waitingType];
+            var factory = CreateDefaultInstanceSelector(_factories[waitingType]);
             var re = factory.Invoke();
             return re;
         }
@@ -164,7 +115,7 @@ namespace Newbe.ExpressionsTests
             if (constructorInfo == null)
             {
                 newExp = Expression.New(implType);
-                _finalExp[interfaceType] = newExp;
+                CreateOrAddItem(_instanceExpressions, interfaceType, newExp);
             }
             else
             {
@@ -178,14 +129,31 @@ namespace Newbe.ExpressionsTests
 
                 while (waitingTypes.TryPop(out var waitingOne))
                 {
-                    var pNewExp = _finalExp[waitingOne];
-                    list.Insert(0, pNewExp);
+                    Expression pExp;
+                    if (waitingOne.IsArray)
+                    {
+                        var elementType = TreeHelper.GetArrayElementType(waitingOne);
+                        var pNewExp = _instanceExpressions[elementType];
+                        pExp = Expression.NewArrayInit(elementType, pNewExp);
+                    }
+                    else
+                    {
+                        var pNewExp = _instanceExpressions[waitingOne];
+                        pExp = CreateDefaultInstanceSelector(pNewExp);
+                    }
+
+                    list.Insert(0, pExp);
                 }
 
                 newExp = Expression.New(constructorInfo, list);
             }
 
             return newExp;
+        }
+
+        public static T CreateDefaultInstanceSelector<T>(IEnumerable<T> source)
+        {
+            return source.First();
         }
     }
 }
