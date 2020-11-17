@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using FluentAssertions;
+using Newbe.ExpressionsTests.Impl;
+using Newbe.ExpressionsTests.Interfaces;
 using NUnit.Framework;
 
 namespace Newbe.ExpressionsTests
@@ -41,28 +44,28 @@ namespace Newbe.ExpressionsTests
         {
             var root = new TreeNode
             {
-                InterfaceType = typeof(string),
+                TargetType = typeof(string),
                 Children = new List<TreeNode>
                 {
                     new TreeNode
                     {
-                        InterfaceType = typeof(int),
+                        TargetType = typeof(int),
                         Children = new List<TreeNode>
                         {
                             new TreeNode
                             {
-                                InterfaceType = typeof(short)
+                                TargetType = typeof(short)
                             }
                         }
                     },
                     new TreeNode
                     {
-                        InterfaceType = typeof(long),
+                        TargetType = typeof(long),
                         Children = new List<TreeNode>
                         {
                             new TreeNode
                             {
-                                InterfaceType = typeof(double)
+                                TargetType = typeof(double)
                             }
                         }
                     }
@@ -87,15 +90,53 @@ namespace Newbe.ExpressionsTests
                     }
                     else
                     {
-                        Console.WriteLine(node.InterfaceType.Name);
+                        Console.WriteLine(node.TargetType.Name);
                         stack.Pop();
                     }
                 }
                 else
                 {
-                    Console.WriteLine(node.InterfaceType.Name);
+                    Console.WriteLine(node.TargetType.Name);
                     stack.Pop();
                 }
+            }
+        }
+
+        [Test]
+        public void ResolveSelf()
+        {
+            var builder = new MyContainerBuilder();
+            builder.Register<MyLogger, MyLogger>();
+            builder.Register<MyLogger, IMyLogger>();
+            builder.Register<MyConsoleLogger, IMyLogger>();
+
+            var objectFactory = builder.Build();
+            {
+                var logger = objectFactory.Resolve<MyLogger>();
+                logger.Should().NotBeNull();
+            }
+            {
+                var logger = objectFactory.Resolve<IMyLogger>();
+                logger.Should().BeOfType<MyConsoleLogger>();
+            }
+            {
+                var loggers = objectFactory.Resolve<IMyLogger[]>();
+                loggers.Length.Should().Be(2);
+            }
+            {
+                var loggerFactory = objectFactory.Resolve<Func<IMyLogger>>();
+                var logger = loggerFactory.Invoke();
+                logger.Should().BeOfType<MyConsoleLogger>();
+            }
+            {
+                var loggerFactory = objectFactory.Resolve<Func<IMyLogger[]>>();
+                var loggers = loggerFactory.Invoke();
+                loggers.Length.Should().Be(2);
+            }
+            {
+                var loggerFactory = objectFactory.Resolve<Func<Func<IMyLogger>>>();
+                var logger = loggerFactory()();
+                logger.Should().BeOfType<MyConsoleLogger>();
             }
         }
 
@@ -103,11 +144,13 @@ namespace Newbe.ExpressionsTests
         public void Run()
         {
             var builder = new MyContainerBuilder();
+            builder.Register<MyLogger, IMyLogger>();
+            builder.Register<ConsoleSmsSender, ConsoleSmsSender>();
             builder.Register<UserDal, IUserDal>();
             builder.Register<UserBll, IUserBll>();
             builder.Register<SmsSenderFactory, ISmsSenderFactory>();
-            builder.Register<ConsoleSmsSenderFactoryHandler, ISmsSenderFactoryHandler>();
-            builder.Register<SmsSenderFactoryHandler, ISmsSenderFactoryHandler>();
+            builder.Register<ConsoleSmsSenderFactoryHandler, ISmsSenderFactoryHandler>(SmsSenderType.Console);
+            builder.Register<SmsSenderFactoryHandler, ISmsSenderFactoryHandler>(SmsSenderType.HttpAPi);
             builder.Register<ConfigProvider, IConfigProvider>();
 
             var objectFactory = builder.Build();
@@ -118,5 +161,23 @@ namespace Newbe.ExpressionsTests
             login = userBll.Login("newbe", "yueluo");
             Console.WriteLine(login);
         }
+    }
+
+    public interface IMyIndex<in TKey, out TInterface>
+    {
+        TInterface this[TKey key] { get; }
+    }
+
+    public class MyIndex<TKey, TInterface> : IMyIndex<TKey, TInterface>
+    {
+        private readonly Dictionary<TKey, Func<TInterface>> _handlers;
+
+        public MyIndex(
+            Dictionary<TKey, Func<TInterface>> handlers)
+        {
+            _handlers = handlers;
+        }
+
+        public TInterface this[TKey key] => _handlers[key].Invoke();
     }
 }

@@ -10,6 +10,7 @@ namespace Newbe.ExpressionsTests
         {
             var dependDic = dic.Values
                 .SelectMany(x => x)
+                .Distinct()
                 .ToDictionary(x => x,
                     x =>
                     {
@@ -42,7 +43,7 @@ namespace Newbe.ExpressionsTests
             var nodeDic = dic
                 .SelectMany(x => x.Value.Select(implType => new TreeNode
                 {
-                    InterfaceType = x.Key,
+                    TargetType = x.Key,
                     ImplType = implType,
                     Children = new List<TreeNode>()
                 }))
@@ -63,7 +64,7 @@ namespace Newbe.ExpressionsTests
                 void ConcatNode(Type interfaceType)
                 {
                     var childrenNode = nodeDic
-                        .Where(x => x.InterfaceType == interfaceType)
+                        .Where(x => x.TargetType == interfaceType)
                         .ToArray();
                     foreach (var item in yilaixiang)
                     {
