@@ -30,21 +30,17 @@ namespace Newbe.RxWorld.DatabaseRepository
         public async Task<int> InsertMany(IEnumerable<int> items)
         {
             var array = items.ToArray();
-            var ps = new DynamicParameters();
+            await using var db = CreateConnection();
+            await db.OpenAsync();
+            var trans = await db.BeginTransactionAsync();
 
-            var sqlBuilder = new StringBuilder("INSERT INTO TestTable (id,value) VALUES");
-            for (var i = 0; i < array.Length; i++)
+            foreach (var t in array)
             {
-                var name = $"@id{i},@value{i}";
-                sqlBuilder.Append(i == array.Length - 1 ? $"({name});" : $"({name}),");
-                ps.Add($"@id{i}", array[i]);
-                ps.Add($"@value{i}", array[i]);
+                await db.ExecuteAsync("INSERT INTO TestTable (id,value) VALUES (@id,@value)",
+                    new {id = t, value = t});
             }
 
-            var sql = sqlBuilder.ToString();
-            await using var db = CreateConnection();
-            await db.ExecuteAsync(sql, ps);
-
+            await trans.CommitAsync();
             var count = await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM TestTable");
             return count;
         }
@@ -60,20 +56,17 @@ namespace Newbe.RxWorld.DatabaseRepository
         public async Task<int> UpsertMany(Dictionary<int, int> values)
         {
             var array = values.ToArray();
-            var ps = new DynamicParameters();
-            var sqlBuilder = new StringBuilder("INSERT OR REPLACE INTO TestTable (id,value) VALUES");
+            await using var db = CreateConnection();
+            await db.OpenAsync();
+            var trans = await db.BeginTransactionAsync();
 
-            for (var i = 0; i < array.Length; i++)
+            foreach (var (key, value) in array)
             {
-                var name = $"@id{i},@value{i}";
-                sqlBuilder.Append(i == array.Length - 1 ? $"({name});" : $"({name}),");
-                ps.Add($"@id{i}", array[i].Key);
-                ps.Add($"@value{i}", array[i].Value);
+                await db.ExecuteAsync("INSERT OR REPLACE INTO TestTable (id,value) VALUES (@id,@value)",
+                    new {id = key, value = value});
             }
 
-            var sql = sqlBuilder.ToString();
-            await using var db = CreateConnection();
-            await db.ExecuteAsync(sql, ps);
+            await trans.CommitAsync();
             return 0;
         }
 
@@ -91,8 +84,7 @@ namespace Newbe.RxWorld.DatabaseRepository
 
         private SQLiteConnection CreateConnection()
         {
-            return new SQLiteConnection
-                {ConnectionString = $"Data Source={DbFilePath};Cache Size=5000;Journal Mode=WAL;Pooling=True;"};
+            return new() {ConnectionString = $"Data Source={DbFilePath};Cache Size=5000;Journal Mode=WAL;Pooling=True;"};
         }
 
         private string DbFilePath => _dbFileName;

@@ -21,7 +21,7 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
             _testOutputHelper = testOutputHelper;
             _database = database;
             _subject = new Subject<BatchItem>();
-            _subject.Buffer(TimeSpan.FromMilliseconds(50), 100)
+            _subject.Buffer(TimeSpan.FromMilliseconds(2), 10000)
                 .Where(x => x.Count > 0)
                 .Select(list => Observable.FromAsync(() => BatchInsertData(list)))
                 .Concat()

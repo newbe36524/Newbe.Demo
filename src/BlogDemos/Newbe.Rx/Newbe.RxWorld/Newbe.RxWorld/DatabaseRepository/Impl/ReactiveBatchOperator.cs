@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Newbe.RxWorld.DatabaseRepository.Impl
 {
-    public class BatchOperator<TInput, TOutput> : IBatchOperator<TInput, TOutput>
+    public class ReactiveBatchOperator<TInput, TOutput> : IBatchOperator<TInput, TOutput>
     {
         private readonly Subject<SavingItem> _subject = new Subject<SavingItem>();
 
-        public BatchOperator(
+        public ReactiveBatchOperator(
             BatchOperatorOptions<TInput, TOutput> options)
         {
             if (options.BufferTime == null)

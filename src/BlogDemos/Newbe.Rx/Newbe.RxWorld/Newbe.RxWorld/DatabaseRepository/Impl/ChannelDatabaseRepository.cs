@@ -15,7 +15,7 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
         private readonly Channel<BatchItem> _channel;
 
         private readonly Task _task;
-        private static readonly TimeSpan Waiting = TimeSpan.FromMilliseconds(50);
+        private static readonly TimeSpan Waiting = TimeSpan.FromMilliseconds(2);
 
         public ChannelDatabaseRepository(
             ITestOutputHelper testOutputHelper,
@@ -39,9 +39,9 @@ namespace Newbe.RxWorld.DatabaseRepository.Impl
                         item = await readAsync;
                     }
 
-                    var list = new List<BatchItem>(100) {item};
+                    var list = new List<BatchItem>(10000) {item};
                     var time = DateTimeOffset.Now;
-                    while (list.Count < 100 && DateTimeOffset.Now - time < Waiting)
+                    while (list.Count < 10000 && DateTimeOffset.Now - time < Waiting)
                     {
                         if (_channel.Reader.TryRead(out var newItem))
                         {

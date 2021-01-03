@@ -102,7 +102,7 @@ namespace Newbe.RxWorld
                     BufferTime = TimeSpan.FromMilliseconds(50),
                     DoManyFunc = DoManyFunc
                 };
-                _batchOperator = new BatchOperator<(int, int), int>(options);
+                _batchOperator = new ReactiveBatchOperator<(int, int), int>(options);
             }
 
             private Task<int> DoManyFunc(IEnumerable<(int, int)> arg)

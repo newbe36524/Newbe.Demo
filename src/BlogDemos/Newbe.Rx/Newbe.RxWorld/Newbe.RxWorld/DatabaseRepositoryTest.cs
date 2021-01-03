@@ -3,7 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Newbe.RxWorld.DatabaseRepository;
 using Newbe.RxWorld.DatabaseRepository.Impl;
 using Xunit;
@@ -50,25 +52,17 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(AutoBatchDatabaseRepository12345));
             var repo = new AutoBatchDatabaseRepository(_testOutputHelper, db);
-            await RunTest(repo, 10000, 2000, 300, 40, 5);
-        }
-
-        [Fact]
-        public async Task FinalDatabaseRepository12345()
-        {
-            var db = CreateDataBase(nameof(FinalDatabaseRepository12345));
-            var repo = new FinalDatabaseRepository(db);
             await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
         }
 
         [Fact]
-        public async Task ReactiveChannelDatabaseRepository()
+        public async Task ReactiveBatchRepository12345()
         {
-            var db = CreateDataBase(nameof(ReactiveChannelDatabaseRepository));
-            var repo = new ReactiveChannelDatabaseRepository(_testOutputHelper, db);
+            var db = CreateDataBase(nameof(ReactiveBatchRepository12345));
+            var repo = new ReactiveBatchRepository(db);
             await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
         }
-        
+
         [Fact]
         public async Task ChannelDatabaseRepository()
         {
@@ -82,7 +76,22 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(ConcurrentDicDatabaseRepository12345));
             var repo = new ConcurrentQueueDatabaseRepository(_testOutputHelper, db);
-            await RunTest(repo, 10000, 2000, 300, 40, 5);
+            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+        }
+        
+        [Fact]
+        public async Task AutoFlushListDatabaseRepository12345()
+        {
+            var db = CreateDataBase(nameof(AutoFlushListDatabaseRepository12345));
+            var repo = new AutoFlushListDatabaseRepository(_testOutputHelper, db);
+            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+        }
+
+        [Fact]
+        public async Task DirectlyInsertMany12345()
+        {
+            var db = CreateDataBase(nameof(DirectlyInsertMany12345));
+            await TestInsertMany(db, 5, 100000, 2000, 300, 40, 5);
         }
 
         private async Task RunTest(IDatabaseRepository repo, params int[] counts)
@@ -92,14 +101,47 @@ namespace Newbe.RxWorld
             {
                 try
                 {
+                    var counter = 0;
                     var sw = Stopwatch.StartNew();
-                    var task = Enumerable.Range(start, count)
-                        .ToObservable()
-                        .Select(i => Observable.FromAsync(() => repo.InsertData(i)))
-                        .Merge(100)
-                        .ToTask();
-                    await task;
-                    _testOutputHelper.WriteLine($"time : {sw.ElapsedMilliseconds}");
+                    var finalTcs = new TaskCompletionSource<int>();
+                    Parallel.For(start, count + start, async x =>
+                    {
+                        try
+                        {
+                            await repo.InsertData(x);
+                            var newValue = Interlocked.Increment(ref counter);
+                            if (newValue >= count)
+                            {
+                                finalTcs.SetResult(0);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            finalTcs.SetException(e);
+                        }
+                    });
+                    await finalTcs.Task;
+                    _testOutputHelper.WriteLine($"count : {count} cost {sw.ElapsedMilliseconds} ms");
+                    await Task.Delay(TimeSpan.FromMilliseconds(10));
+                    start += count;
+                }
+                catch (Exception e)
+                {
+                    _testOutputHelper.WriteLine($"there is an error : {e}");
+                }
+            }
+        }
+
+        private async Task TestInsertMany(IDatabase db, params int[] counts)
+        {
+            var start = 0;
+            foreach (var count in counts)
+            {
+                try
+                {
+                    var sw = Stopwatch.StartNew();
+                    await db.InsertMany(Enumerable.Range(start, count));
+                    _testOutputHelper.WriteLine($"count : {count} cost {sw.ElapsedMilliseconds} ms");
                     await Task.Delay(TimeSpan.FromMilliseconds(10));
                     start += count;
                 }

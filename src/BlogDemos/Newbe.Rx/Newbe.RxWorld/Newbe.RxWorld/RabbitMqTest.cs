@@ -48,7 +48,7 @@ namespace Newbe.RxWorld
                 arguments: null);
 
             var consumer = new EventingBasicConsumer(channel);
-            var finalDatabaseRepository = new FinalDatabaseRepository(new SQLiteDatabase(nameof(ConsumeOneByOne)));
+            var finalDatabaseRepository = new ReactiveBatchRepository(new SQLiteDatabase(nameof(ConsumeOneByOne)));
             consumer.Received += (model, ea) =>
             {
                 var body = ea.Body;
@@ -82,7 +82,7 @@ namespace Newbe.RxWorld
                 h => consumer.Received += h,
                 h => consumer.Received -= h);
             var finalDatabaseRepository =
-                new FinalDatabaseRepository(new SQLiteDatabase(nameof(ConsumePreFetchWithFinalRepository)));
+                new ReactiveBatchRepository(new SQLiteDatabase(nameof(ConsumePreFetchWithFinalRepository)));
             using var eventHandlingFlow = receiver
                 .Select(@event => Observable.FromAsync(async () =>
                 {
