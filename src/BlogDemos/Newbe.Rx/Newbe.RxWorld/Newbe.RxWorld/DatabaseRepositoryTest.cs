@@ -52,7 +52,7 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(AutoBatchDatabaseRepository12345));
             var repo = new AutoBatchDatabaseRepository(_testOutputHelper, db);
-            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+            await RunTest(repo, 5, 30000, 2000, 300, 40, 5);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(ReactiveBatchRepository12345));
             var repo = new ReactiveBatchRepository(db);
-            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+            await RunTest(repo, 5, 30000, 2000, 300, 40, 5);
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(ChannelDatabaseRepository));
             var repo = new ChannelDatabaseRepository(_testOutputHelper, db);
-            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+            await RunTest(repo, 5, 30000, 2000, 300, 40, 5);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(ConcurrentDicDatabaseRepository12345));
             var repo = new ConcurrentQueueDatabaseRepository(_testOutputHelper, db);
-            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+            await RunTest(repo, 5, 30000, 2000, 300, 40, 5);
         }
         
         [Fact]
@@ -84,14 +84,14 @@ namespace Newbe.RxWorld
         {
             var db = CreateDataBase(nameof(AutoFlushListDatabaseRepository12345));
             var repo = new AutoFlushListDatabaseRepository(_testOutputHelper, db);
-            await RunTest(repo, 5, 100000, 2000, 300, 40, 5);
+            await RunTest(repo, 5, 30000, 2000, 300, 40, 5);
         }
 
         [Fact]
         public async Task DirectlyInsertMany12345()
         {
             var db = CreateDataBase(nameof(DirectlyInsertMany12345));
-            await TestInsertMany(db, 5, 100000, 2000, 300, 40, 5);
+            await TestInsertMany(db, 5, 30000, 2000, 300, 40, 5);
         }
 
         private async Task RunTest(IDatabaseRepository repo, params int[] counts)
