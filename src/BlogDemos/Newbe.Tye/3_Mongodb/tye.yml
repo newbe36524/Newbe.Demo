@@ -1,0 +1,25 @@
+name: mongo-sample
+services:
+  - name: mongo
+    image: mongo
+    env:
+      - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+        value: root
+      - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+        value: example
+    bindings:
+      - containerPort: 27017
+        connectionString: "mongodb://${host}:${port}"
+  - name: mongo-express
+    image: mongo-express
+    bindings:
+      - port: 8081
+        containerPort: 8081
+        protocol: http
+    env:
+      - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+        value: root
+      - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+        value: example
+  - name: tyetest
+    project: TyeTest/TyeTest.csproj
