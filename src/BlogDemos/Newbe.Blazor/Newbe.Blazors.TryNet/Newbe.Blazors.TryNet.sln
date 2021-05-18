@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLS.WasmCodeRunner", "WasmC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLS.Blazor", "MLS.Blazor\MLS.Blazor.csproj", "{F926389F-216D-4D08-A6F1-BAD85DA0D990}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{8BFABED4-C1EB-4988-A22C-F78196462F7E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +24,5 @@ Global
 		{F926389F-216D-4D08-A6F1-BAD85DA0D990}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F926389F-216D-4D08-A6F1-BAD85DA0D990}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F926389F-216D-4D08-A6F1-BAD85DA0D990}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BFABED4-C1EB-4988-A22C-F78196462F7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BFABED4-C1EB-4988-A22C-F78196462F7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BFABED4-C1EB-4988-A22C-F78196462F7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BFABED4-C1EB-4988-A22C-F78196462F7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

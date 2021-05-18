@@ -1,13 +1,21 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Runtime;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MLS.WasmCodeRunner;
 using Newtonsoft.Json.Linq;
+using WebExtension.Net.WebRequest;
 
 namespace Newbe.Blazors.TryNet.Pages
 {
@@ -41,7 +50,6 @@ namespace ConsoleApp1
         public string Code { get; set; }
         public string CodeResult { get; set; }
         public int Sequence { get; set; }
-        [Inject] public HttpClient http { get; set; }
         [Inject] public IWebAssemblyHostEnvironment WebAssemblyHostEnvironment { get; set; }
 
         private async Task<string> CompileAndEncode(string text, params MetadataReference[] additionalReferences)
@@ -54,18 +62,48 @@ namespace ConsoleApp1
             return encodedAssembly;
         }
 
+        private static HttpRequestMessage SetUri(HttpRequestMessage message, Uri uri)
+        {
+            var method =
+                typeof(HttpRequestMessage).GetField("_requestUri", BindingFlags.NonPublic | BindingFlags.Instance);
+            method.SetValue(message, uri);
+            return message;
+        }
+
+        private static readonly HttpClient http = new();
+
+        private static HashSet<string> baseAssemblyNames = new[]
+            {
+                typeof(AssemblyTargetedPatchBandAttribute).Assembly, // System.Private.CoreLib
+                typeof(Uri).Assembly, // System.Private.Uri
+                typeof(Console).Assembly, // System.Console
+                typeof(IQueryable).Assembly, // System.Linq.Expressions
+                typeof(HttpClient).Assembly, // System.Net.Http
+                typeof(HttpClientJsonExtensions).Assembly, // System.Net.Http.Json
+                typeof(RequiredAttribute).Assembly, // System.ComponentModel.Annotations
+                typeof(Regex).Assembly, // System.Text.RegularExpressions
+                typeof(NavLink).Assembly, // Microsoft.AspNetCore.Components.Web
+                typeof(WebAssemblyHostBuilder).Assembly, // Microsoft.AspNetCore.Components.WebAssembly
+            }
+            .SelectMany(a => a.GetReferencedAssemblies().Concat(new[] {a.GetName()}))
+            .Select(an => an.Name)
+            .ToHashSet();
+
         private async Task<Compilation> Compile(string text, params MetadataReference[] additionalReferences)
         {
             var baseAddress = WebAssemblyHostEnvironment.BaseAddress;
-            var refs = new List<MetadataReference>();
-            // foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            // {
-            //     Logger.LogInformation(assembly.Location);
-            //     refs.Add(
-            //         MetadataReference.CreateFromStream(
-            //             await this.http.GetStreamAsync(baseAddress + "/framework/" + assembly.Location)));
-            // }
-
+            var refsStreams = await Task.WhenAll(baseAssemblyNames
+                .Select(async assembly =>
+                {
+                    var message = new HttpRequestMessage(HttpMethod.Get, default(string));
+                    var requestUri = new Uri($"{baseAddress}framework/{assembly}.dll");
+                    message = SetUri(message, requestUri);
+                    var responseMessage = await http.SendAsync(message);
+                    return await responseMessage.Content.ReadAsStreamAsync();
+                }));
+            var refs = refsStreams
+                .Select(stream =>
+                    MetadataReference.CreateFromStream(stream));
             return CSharpCompilation.Create("assembly.dll", new[] {CSharpSyntaxTree.ParseText(text)}, refs,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
