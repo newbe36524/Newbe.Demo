@@ -49,6 +49,7 @@ namespace ConsoleApp1
 
         public string Code { get; set; }
         public string CodeResult { get; set; }
+        public string ExeBin { get; set; }
         public int Sequence { get; set; }
         [Inject] public IWebAssemblyHostEnvironment WebAssemblyHostEnvironment { get; set; }
 
@@ -123,6 +124,7 @@ namespace ConsoleApp1
 
             var assembly = await CompileAndEncode(Code);
             body.Base64Assembly = assembly;
+            ExeBin = assembly;
 
             Sequence++;
             var message = new InteropMessage<WasmCodeRunnerRequest>(Sequence, body);

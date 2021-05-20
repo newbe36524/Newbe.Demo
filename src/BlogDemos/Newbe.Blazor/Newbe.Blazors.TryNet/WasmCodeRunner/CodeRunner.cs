@@ -29,6 +29,10 @@ namespace MLS.WasmCodeRunner
         public InteropMessage<WasmCodeRunnerResponse> ProcessRunRequest(string message)
         {
             var messageObject = JsonConvert.DeserializeObject<InteropMessage<WasmCodeRunnerRequest>>(message);
+            if (messageObject == null)
+            {
+                return null;
+            }
             if (messageObject.Sequence > this.sequence)
             {
                 this.sequence = messageObject.Sequence;
