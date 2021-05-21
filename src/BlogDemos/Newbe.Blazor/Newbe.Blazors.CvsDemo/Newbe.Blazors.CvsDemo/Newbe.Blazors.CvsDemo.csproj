@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Blazor.BrowserExtension" Version="0.1.9" />
+        <PackageReference Include="CsvHelper" Version="27.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0-preview.3.21201.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-preview.3.21201.13" PrivateAssets="all" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="6.0.38" />
+        <PackageReference Include="Refit.Newtonsoft.Json" Version="6.0.38" />
+        <PackageReference Include="WebExtension.Net" Version="0.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="wwwroot\**\*" CopyToOutputDirectory="Always" />
+    </ItemGroup>
+    
+</Project>
