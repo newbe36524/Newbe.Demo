@@ -103,10 +103,9 @@ namespace ConsoleApp1
                     return await responseMessage.Content.ReadAsStreamAsync();
                 }));
             var refs = refsStreams
-                .Select(stream => MetadataReference.CreateFromStream(stream));
-            return CSharpCompilation.Create("assembly.dll", 
-                new[] {CSharpSyntaxTree.ParseText(text)},
-                refs,
+                .Select(stream =>
+                    MetadataReference.CreateFromStream(stream));
+            return CSharpCompilation.Create("assembly.dll", new[] {CSharpSyntaxTree.ParseText(text)}, refs,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
 
@@ -159,6 +158,7 @@ namespace ConsoleApp1
                 ("BlazorInterop.postMessage", message);
         }
 
+        [JSInvokable("MLS.Blazor.PostMessageAsync")]
         public async Task<string>
             PostMessageAsync(string message)
         {
