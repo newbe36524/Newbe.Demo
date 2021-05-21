@@ -13,10 +13,6 @@ namespace Newbe.Blazors.CvsDemo.Pages
     public partial class Index
     {
         [Inject] public IDaprReleaseApi DaprReleaseApi { get; set; }
-
-        private ReleaseTableItem[] _releaseFiles;
-        private string _csvFile;
-
         private async Task OnClickExportAsync()
         {
             var releases = await DaprReleaseApi.GetLatestReleaseAsync();
@@ -40,6 +36,9 @@ namespace Newbe.Blazors.CvsDemo.Pages
             await csvWriter.FlushAsync();
             _csvFile = Convert.ToBase64String(ms.ToArray());
         }
+        
+        private ReleaseTableItem[] _releaseFiles;
+        private string _csvFile;
 
         public record ReleaseTableItem
         {

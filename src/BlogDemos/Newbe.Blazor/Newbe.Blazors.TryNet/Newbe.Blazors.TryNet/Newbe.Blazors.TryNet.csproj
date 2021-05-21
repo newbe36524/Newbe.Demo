@@ -16,10 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="wwwroot\interop.js" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\WasmCodeRunner\MLS.WasmCodeRunner.csproj" />
     </ItemGroup>
     

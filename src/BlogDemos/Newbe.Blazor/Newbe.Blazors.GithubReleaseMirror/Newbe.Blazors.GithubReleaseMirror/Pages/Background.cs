@@ -31,12 +31,6 @@ namespace Newbe.Blazors.GithubReleaseMirror.Pages
             {
                 OnBeforeRequestOptions.Blocking
             });
-            // this opens index.html in the extension as a new tab when the background page is loaded
-            var extensionUrl = await WebExtension.Runtime.GetURL("index.html");
-            await WebExtension.Tabs.Create(new
-            {
-                url = extensionUrl
-            });
         }
 
         // e.g. https://github.com/dapr/cli/releases/download/v1.1.0/dapr_windows_amd64.zip

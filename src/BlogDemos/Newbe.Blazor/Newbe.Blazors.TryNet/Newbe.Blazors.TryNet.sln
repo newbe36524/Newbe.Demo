@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newbe.Blazors.TryNet", "New
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLS.WasmCodeRunner", "WasmCodeRunner\MLS.WasmCodeRunner.csproj", "{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLS.Blazor", "MLS.Blazor\MLS.Blazor.csproj", "{F926389F-216D-4D08-A6F1-BAD85DA0D990}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,9 +18,5 @@ Global
 		{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F926389F-216D-4D08-A6F1-BAD85DA0D990}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F926389F-216D-4D08-A6F1-BAD85DA0D990}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F926389F-216D-4D08-A6F1-BAD85DA0D990}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F926389F-216D-4D08-A6F1-BAD85DA0D990}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

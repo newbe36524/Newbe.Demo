@@ -1,0 +1,27 @@
+﻿@page "/"
+@page "/index.html"
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@inherits Blazor.BrowserExtension.Pages.IndexPage
+@inject IWebAssemblyHostEnvironment _environment
+
+<div @onkeydown="OnKeyDownAsync">
+
+    <div>
+        <Carousel Effect="@CarouselEffect.Fade" @ref="_carousel">
+            @foreach (var url in ImgUrls)
+            {
+                <CarouselSlick>
+                    <Image Height="@_height.ToString()" Src="@url" Width="100%" Preview="false"/>
+                </CarouselSlick>
+            }
+        </Carousel>
+    </div>
+
+    <Row>
+        <Col Span="3">
+            <Button OnClick="@(_ => _carousel.Previous())" Size="small">Prev</Button>
+            <Button OnClick="@(_ => _carousel.Next())" Size="small">Next</Button>
+        </Col>
+    </Row>
+
+</div>
