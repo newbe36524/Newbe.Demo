@@ -1,0 +1,10 @@
+﻿@page "/"
+@page "/index.html"
+@inherits Blazor.BrowserExtension.Pages.IndexPage
+
+<textarea @bind="@Code" style="width: 800px;height: 300px;">
+</textarea>
+<a href="data:application/octet-stream;base64,@ExeBin">download</a>
+<pre style="font-size: 16px">@CodeResult</pre>
+
+<button @onclick="@OnClickRunAsync">Run</button>

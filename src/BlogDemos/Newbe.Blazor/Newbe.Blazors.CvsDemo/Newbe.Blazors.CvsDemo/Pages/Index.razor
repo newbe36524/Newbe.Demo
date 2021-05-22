@@ -1,0 +1,37 @@
+﻿@page "/"
+@page "/index.html"
+@inherits Blazor.BrowserExtension.Pages.IndexPage
+
+<button @onclick="OnClickExportAsync">get dapr release</button>
+
+@if (_csvFile != null)
+{
+    <a href="data:text/csv;base64,@_csvFile" download="list.csv">export as csv</a>
+}
+
+@if (_releaseFiles != null)
+{
+    <table>
+        <thead>
+        <tr>
+            <th>Tag</th>
+            <th>File</th>
+            <th>DownloadUrl</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var r in _releaseFiles)
+        {
+            <tr>
+                <td>@r.Tag</td>
+                <td>@r.File</td>
+                <td>@r.DownloadUrl</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>there is no data</p>
+}

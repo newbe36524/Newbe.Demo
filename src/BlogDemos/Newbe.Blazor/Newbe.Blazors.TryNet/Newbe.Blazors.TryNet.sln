@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newbe.Blazors.TryNet", "Newbe.Blazors.TryNet\Newbe.Blazors.TryNet.csproj", "{077DDFA4-63A1-4FE2-B3C6-33133610D9F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLS.WasmCodeRunner", "WasmCodeRunner\MLS.WasmCodeRunner.csproj", "{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{077DDFA4-63A1-4FE2-B3C6-33133610D9F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{077DDFA4-63A1-4FE2-B3C6-33133610D9F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{077DDFA4-63A1-4FE2-B3C6-33133610D9F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{077DDFA4-63A1-4FE2-B3C6-33133610D9F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E69C16EC-982D-4FC7-B09A-21F1E9A185F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
