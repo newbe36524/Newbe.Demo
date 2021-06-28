@@ -263,3 +263,4 @@ __pycache__/
 
 .logs
 /src/BlogDemos/Newbe.Blazor/Newbe.Blazors.Slider/Newbe.Blazors.Slider/wwwroot/img/*.PNG
+/src/BlogDemos/Newbe.TextOcr/imgs/*

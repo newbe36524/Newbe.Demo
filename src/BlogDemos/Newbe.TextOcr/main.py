@@ -63,7 +63,21 @@ class ImgProcess:
             cv2.drawContours(img_region_marked_view, hull_list, cnt, (0, 0, 255), 10)
             x, y, w, h = cv2.boundingRect(hull_list[cnt])
             region = img_region_marked[y:y + h, x:x + w]
-            self.img_region_list.append(np.copy(region))
+
+            if region.shape[1] < 1000 or region.shape[0] < 1000:
+                scale_percent = 100  # percent of original size
+                if region.shape[1] < 1000:
+                    scale_percent = 1000 // region.shape[1] * 100
+                else:
+                    scale_percent = 1000 // region.shape[0] * 100
+                width = int(region.shape[1] * scale_percent / 100)
+                height = int(region.shape[0] * scale_percent / 100)
+                dim = (width, height)
+                # resize image
+                resized = cv2.resize(region, dim, interpolation=cv2.INTER_AREA)
+                self.img_region_list.append(np.copy(resized))
+            else:
+                self.img_region_list.append(np.copy(region))
 
         if save_in_file:
             # save regions file
@@ -82,19 +96,21 @@ class ImgProcess:
             # get rid of the color
             pre = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
             # Otsu threshold
-            pre = cv2.threshold(pre, 50, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            pre = cv2.threshold(pre, 240, 255, cv2.THRESH_BINARY)[1]
             pre = ~pre
             return pre
 
         for img_region in self.img_region_list:
             pre = pre_process_region(img_region)
+            plt.imshow(pre)
+            plt.show()
             ver_kernel_len = np.array(img_region).shape[0] // 30
-            hor_kernel_len = np.array(img_region).shape[1] // 70
+            hor_kernel_len = np.array(img_region).shape[1] // 20
             # Defining a vertical kernel to detect all vertical lines of image
             ver_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, ver_kernel_len))
             # Defining a horizontal kernel to detect all horizontal lines of image
             hor_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (hor_kernel_len, 1))
-            # A kernel of 2x2
+            # A kernel of 2x1
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
 
             # Use vertical kernel to detect and save the vertical lines in a jpg
@@ -116,11 +132,12 @@ class ImgProcess:
             erosion = cv2.erode(img_vh, kernel, iterations=10)
             dilate = cv2.dilate(erosion, kernel, iterations=10)
 
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 1))
-            morph_img = cv2.morphologyEx(dilate, cv2.MORPH_CLOSE, kernel)
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 1))
+            # morph_img = cv2.morphologyEx(dilate, cv2.MORPH_CLOSE, kernel)
 
-            self.img_table_lined_list.append(morph_img)
-            plt.imshow(dilate, cmap='gray')
+            result = dilate
+            self.img_table_lined_list.append(result)
+            plt.imshow(result, cmap='gray')
             plt.show()
 
         # save table line file
@@ -136,7 +153,7 @@ class ImgProcess:
             img_region_marked = np.copy(self.img_region_list[table_img_index])
             edges = cv2.Canny(~img_table_lined, low_threshold, high_threshold)
 
-            contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
             for cnt in range(len(contours)):
                 # 轮廓逼近
                 epsilon = 0.01 * cv2.arcLength(contours[cnt], True)
@@ -144,7 +161,7 @@ class ImgProcess:
                 corners = len(approx)
                 # if corners in range(4, 10):
                 ar = cv2.contourArea(contours[cnt])
-                if ar > (img_table_lined.size // 100):
+                if ar > (img_table_lined.size // 200):
                     cv2.drawContours(img_region_marked, contours, cnt, (255, 0, 0), 5)
                     hull = cv2.convexHull(contours[cnt])
 
@@ -173,7 +190,8 @@ class ImgProcess:
         #     out_t = out.strip()
         #     if len(out_t) != 0:
         #         item_test_list.append(out_t)
-        #         s = s + f"\nitem {i}:\n" + out_t
+        #         # s = s + f"\nitem {i}:\n" + out_t
+        #         s = s + f"\n" + out_t
         print(f"{self.filename_without_ext}============")
         print(s)
         print("============")
