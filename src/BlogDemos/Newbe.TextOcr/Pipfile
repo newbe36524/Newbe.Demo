@@ -14,6 +14,7 @@ matplotlib = "*"
 pytesseract = "*"
 jinja2 = "*"
 openpyxl = "*"
+tesserocr = {path = "./tesserocr-2.4.0-cp37-cp37m-win_amd64.whl"}
 
 [requires]
-python_version = "3.8"
+python_version = "3.7"
