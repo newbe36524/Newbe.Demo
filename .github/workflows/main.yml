@@ -33,6 +33,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
         run: |
-          cd $GITHUB_WORKSPACE/src
-          dotnet restore $GITHUB_WORKSPACE/src/${{ matrix.sln }}
-          dotnet build $GITHUB_WORKSPACE/src/${{ matrix.sln }}
+          cd $GITHUB_WORKSPACE/src/BlogDemos
+          dotnet restore ${{ matrix.sln }}
+          dotnet build ${{ matrix.sln }}
