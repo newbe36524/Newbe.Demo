@@ -5,12 +5,10 @@ on:
     branches:
       - main
       - develop
-      - publish
 
   pull_request:
     branches:
       - main
-      - develop
 
 jobs:
   build:
@@ -36,5 +34,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
         run: |
           cd $GITHUB_WORKSPACE/src
-          dotnet restore
+          dotnet restore $GITHUB_WORKSPACE/src/${{ matrix.sln }}
           dotnet build $GITHUB_WORKSPACE/src/${{ matrix.sln }}
