@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         sln:
-          - Use-Dependency-Injection-In-CSharp/Use-Dependency-Injection-In-CSharp.sln
+          - Try-More-On-IEnumerable/Try-More-On-IEnumerable.sln
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
