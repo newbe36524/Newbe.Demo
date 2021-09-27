@@ -1,0 +1,57 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sln:
+          - Newbe.Blazor/Newbe.Blazors.CvsDemo/Newbe.Blazors.CvsDemo.sln
+          - Newbe.Blazor/Newbe.Blazors.GithubReleaseMirror/Newbe.Blazors.GithubReleaseMirror.sln
+          - Newbe.Blazor/Newbe.Blazors.Slider/Newbe.Blazors.Slider.sln
+          - Newbe.Blazor/Newbe.Blazors.Template/Newbe.Blazors.Template.sln
+          - Newbe.Blazor/Newbe.Blazors.TryNet/Newbe.Blazors.TryNet.sln
+          - Newbe.ExpressionsTests/Newbe.ExpressionsTests.sln
+          - Newbe.DotTrace/Newbe.DotTrace.sln
+          - Newbe.Rider/Newbe.Rider/Newbe.Rider.sln
+          - Newbe.Rx/Newbe.RxWorld/Newbe.RxWorld.sln
+          - Newbe.Tfw/Newbe.Tfw.sln
+          - Newbe.StringPools/Newbe.StringPools.sln
+          - Newbe.Tasks/Newbe.Tasks/Newbe.Tasks.sln
+          - Newbe.Tye/0_Normal/TyeTest.sln
+          - Newbe.Tye/1_Ingress/TyeTest.sln
+          - Newbe.Tye/2_ServiceDiscovery/TyeTest.sln
+          - Newbe.Tye/3_Mongodb/TyeTest.sln
+          - Newbe.Tye/4_Seq/TyeTest.sln
+          - Newbe.Tye/5_Zipkin/TyeTest.sln
+          - Newbe.Tye/6_Dapr/TyeTest.sln
+          - Try-More-On-IEnumerable/Try-More-On-IEnumerable.sln
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "6.0.100-rc.1.21458.32"
+          include-prerelease: true
+      - name: build and test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+        run: |
+          cd $GITHUB_WORKSPACE/src/BlogDemos
+          dotnet restore ${{ matrix.sln }}
+          dotnet build ${{ matrix.sln }}
