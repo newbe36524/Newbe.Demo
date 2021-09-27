@@ -1,0 +1,40 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - publish
+
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sln:
+          - Use-Dependency-Injection-In-CSharp/Use-Dependency-Injection-In-CSharp.sln
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "6.0.100-rc.1.21458.32"
+          include-prerelease: true
+      - name: build and test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+        run: |
+          cd $GITHUB_WORKSPACE/src
+          dotnet restore
+          dotnet build $GITHUB_WORKSPACE/src/${{ matrix.sln }}
