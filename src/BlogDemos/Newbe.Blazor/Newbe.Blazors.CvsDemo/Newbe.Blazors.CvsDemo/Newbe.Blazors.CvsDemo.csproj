@@ -11,8 +11,8 @@
         <PackageReference Include="Refit.HttpClientFactory" Version="6.1.15" />
         <PackageReference Include="Refit.Newtonsoft.Json" Version="6.1.15" />
         <PackageReference Include="WebExtension.Net" Version="0.4.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0-preview.3.21201.13" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-preview.3.21201.13" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0-rc.2.21480.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-rc.2.21480.10" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
