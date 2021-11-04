@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.0.90" />
+        <PackageReference Include="Dapper" Version="2.0.123" />
         <PackageReference Include="Humanizer" Version="2.11.10" />
         <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.1.20200127.214830" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
