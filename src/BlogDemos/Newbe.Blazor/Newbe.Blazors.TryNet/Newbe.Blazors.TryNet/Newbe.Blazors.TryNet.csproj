@@ -8,7 +8,7 @@
         <PackageReference Include="Blazor.BrowserExtension" Version="0.1.9" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0" PrivateAssets="all" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     </ItemGroup>
 
     <ItemGroup>
