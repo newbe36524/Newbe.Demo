@@ -55,4 +55,4 @@ jobs:
           cd $GITHUB_WORKSPACE/src/BlogDemos
           dotnet restore ${{ matrix.sln }}
           dotnet build ${{ matrix.sln }}
-      - uses: mansagroup/renovate-merge-action@v2
+      - uses: mansagroup/renovate-merge-action@v0
