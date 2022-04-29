@@ -10,7 +10,7 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="Refit.HttpClientFactory" Version="6.3.2" />
         <PackageReference Include="Refit.Newtonsoft.Json" Version="6.3.2" />
-        <PackageReference Include="WebExtension.Net" Version="0.4.1" />
+        <PackageReference Include="WebExtension.Net" Version="0.5.1" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
     </ItemGroup>
