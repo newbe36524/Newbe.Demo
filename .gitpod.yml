@@ -9,7 +9,8 @@ tasks:
 
       # tye
       dotnet tool install --global Microsoft.Tye --version 0.11.0-alpha.22111.1
+      export PATH=$HOME/.dotnet/tools:$PATH
 
       # start
-      cd src/Newbe.Tye/6_Dapr
+      cd src/BlogDemos/Newbe.Tye/6_Dapr
       tye run
