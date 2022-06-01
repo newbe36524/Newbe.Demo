@@ -1,0 +1,15 @@
+# List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
+image: gitpod/workspace-dotnet
+tasks:
+  - init: echo 'init script' # runs during prebuild
+    command: |
+      # dapr init
+      wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+      dapr init
+
+      # tye
+      dotnet tool install --global Microsoft.Tye --version 0.11.0-alpha.22111.1
+
+      # start
+      cd src/Newbe.Tye/6_Dapr
+      tye run
