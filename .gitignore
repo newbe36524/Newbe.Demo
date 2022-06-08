@@ -264,3 +264,4 @@ __pycache__/
 .logs
 /src/BlogDemos/Newbe.Blazor/Newbe.Blazors.Slider/Newbe.Blazors.Slider/wwwroot/img/*.PNG
 /src/BlogDemos/Newbe.TextOcr/imgs/*
+src/BlogDemos/Newbe.Tye/6_Dapr/.tye/process_store
