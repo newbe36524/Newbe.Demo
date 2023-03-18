@@ -28,24 +28,6 @@ public class Tests
         });
         // TestTaskRun_Error: count = 1
     }
-
-    [Test]
-    public void TestAsyncTaskLongRunning_Error()
-    {
-        ProcessTest(token =>
-        {
-            Task.Factory.StartNew(async () =>
-            {
-                while (true)
-                {
-                    _count++;
-                    await Task.Delay(TimeSpan.FromSeconds(1), token);
-                }
-            }, token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
-        });
-        // TestAsyncTaskLongRunning_Error: count = 1
-    }
-
     [Test]
     public void TestSyncTaskLongRunning_Success()
     {
@@ -122,6 +104,57 @@ public class Tests
     }
 
     [Test]
+    public void TestAsyncTaskLongRunning_Error()
+    {
+        ProcessTest(token =>
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                while (true)
+                {
+                    _count++;
+                    await Task.Delay(TimeSpan.FromSeconds(1), token);
+                }
+            }, token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+        });
+        // TestAsyncTaskLongRunning_Error: count = 1
+    }
+    
+    [Test]
+    public void TestThreadWithAsync_Error()
+    {
+        ProcessTest(token =>
+        {
+            Task CountUp(CancellationToken c)
+            {
+                _count++;
+                return Task.CompletedTask;
+            }
+
+            new Thread(async () =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        await CountUp(token);
+                        await Task.Delay(TimeSpan.FromSeconds(1), token);
+                        token.ThrowIfCancellationRequested();
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        return;
+                    }
+                }
+            })
+            {
+                IsBackground = true,
+            }.Start();
+        });
+        // TestThreadWithAsync_Error: count = 1
+    }
+
+    [Test]
     public void TestThreadWithDelayTask_Error()
     {
         ProcessTest(token =>
@@ -157,12 +190,16 @@ public class Tests
     private void ProcessTest(Action<CancellationToken> action, [CallerMemberName] string methodName = "")
     {
         var cts = new CancellationTokenSource();
+        // 启动常驻线程
         action.Invoke(cts.Token);
+        // 严架给压力
         YanjiaIsComing(cts.Token);
 
+        // 等待一段时间
         Thread.Sleep(TimeSpan.FromSeconds(5));
         cts.Cancel();
 
+        // 输出
         Console.WriteLine($"{methodName}: count = {_count}");
     }
 
