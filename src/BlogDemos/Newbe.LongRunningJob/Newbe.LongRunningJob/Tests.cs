@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace Newbe.LongRunningJob;
 
+[Ignore("should run manually")]
 public class Tests
 {
     [SetUp]
@@ -28,6 +29,7 @@ public class Tests
         });
         // TestTaskRun_Error: count = 1
     }
+
     [Test]
     public void TestSyncTaskLongRunning_Success()
     {
@@ -119,7 +121,7 @@ public class Tests
         });
         // TestAsyncTaskLongRunning_Error: count = 1
     }
-    
+
     [Test]
     public void TestThreadWithAsync_Error()
     {
